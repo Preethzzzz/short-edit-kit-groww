@@ -1,0 +1,20 @@
+{
+  "name": "short-edit-kit-groww",
+  "version": "0.1.0",
+  "description": "Edit raw green-screen footage plus a finished script into a branded vertical Short: transcribe, sync narration to script, cut retakes and extra words, key, grade, plan visuals, render with Remotion, independent QA. Ships with the Groww brand pack.",
+  "author": {
+    "name": "Preethzzzz",
+    "url": "https://github.com/Preethzzzz"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "video",
+    "shorts",
+    "remotion",
+    "whisper",
+    "green-screen",
+    "private"
+  ],
+  "homepage": "https://github.com/Preethzzzz/short-edit-kit-groww",
+  "repository": "https://github.com/Preethzzzz/short-edit-kit-groww"
+}

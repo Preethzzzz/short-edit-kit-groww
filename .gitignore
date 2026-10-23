@@ -1,0 +1,13 @@
+# never commit footage, renders, models or secrets
+*.mp4
+*.mov
+*.MOV
+*.MP4
+*.webm
+*.m4a
+*.wav
+node_modules/
+__pycache__/
+.env
+*.pem
+jobs/

@@ -1,0 +1,21 @@
+{
+  "_about": "10-second setup test: no footage, numeric anchors. build_plan.py test_plan.json src/sample.json",
+  "duration": 10,
+  "fps": 30,
+  "layout": "card-top",
+  "channel": "ipo-review",
+  "theme": "light-blue",
+  "header": {"topic": "Setup test"},
+  "ra": {"name": "Test Analyst", "date": "01-01-2026"},
+  "sections": [{"scene": "market", "at": 0}, {"scene": "factory", "at": 5}],
+  "beats": [
+    {"id": "total", "at": 0.3, "until": 4.8, "component": "StackedTotal", "props": {"kicker": "Setup test · 2 items", "label": "Total", "total": 300, "prefix": "₹", "suffix": " Cr", "items": [{"label": "Alpha", "value": 200, "display": "₹200 Cr", "at": 1.0}, {"label": "Beta", "value": 100, "display": "₹100 Cr", "at": 2.0}]}},
+    {"id": "card", "at": 5.0, "until": 8.4, "component": "EntityCard", "source": "Test data", "props": {"number": 1, "sector": "Test sector", "name": "Alpha Test Ltd", "icon": "factory", "stats": [{"label": "Price band", "value": "₹10 - ₹12", "big": true, "at": 5.5}, {"label": "Lot size", "value": "100 shares", "at": 6.0}], "badge": {"text": "Fresh issue", "tone": "accent", "at": 6.5}}}
+  ],
+  "endCard": {"at": 8.6},
+  "captions": [
+    {"from": 0.3, "to": 2.5, "text": "This is a setup test render."},
+    {"from": 2.5, "to": 4.8, "text": "Captions sit above the Shorts UI."},
+    {"from": 5.0, "to": 8.4, "text": "Cards come from the template library."}
+  ]
+}

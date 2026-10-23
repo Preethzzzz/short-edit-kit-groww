@@ -1,0 +1,109 @@
+{
+  "about": "Beat components for the generic Short. Use in plan.json beats: {component, props}. Any prop named `at` or ending in `At` is a script phrase (or {phrase, after, edge, offset}) and is resolved to seconds by build_plan.py. Tones: profit (green, gains/above 1x), loss (red, losses/below 1x/risks), note (yellow, disclaimers/pending), neutral (blue, labels/neutral numbers), accent (theme colour, structure only). Rich text: \"plain *accent phrase*\" puts one phrase in italic serif. Images: path relative to the job public/ folder.",
+  "components": {
+    "KineticLine": {
+      "use": "One spoken line typed part by part, one accent phrase (hook lines, transitions).",
+      "required": ["parts"], "optional": ["size"],
+      "example": {"parts": [{"t": "Do you trust the"}, {"t": "top performer", "accent": true, "at": "top performer"}, {"t": "of the last 5 years?", "at": "pichhle 5 saal"}]}
+    },
+    "NoteCard": {
+      "use": "An important point or caveat (yellow = note). Optional chips.",
+      "required": ["text"], "optional": ["kicker", "chips", "tone"],
+      "example": {"kicker": "Ek important baat", "text": "Day 1 subscription is only an *indication of demand*", "chips": [{"text": "Valuation", "at": "Valuation"}, {"text": "Risks"}]}
+    },
+    "BigNumber": {
+      "use": "One headline number counting up (issue size, total bids).",
+      "required": ["value"], "optional": ["kicker", "label", "decimals", "prefix", "suffix", "tone", "note", "at"],
+      "example": {"kicker": "Jio Platforms IPO", "label": "Issue size", "value": 30213, "prefix": "₹", "suffix": " Cr"}
+    },
+    "StackedTotal": {
+      "use": "Combined total with a stacked bar; each item grows as it is named (multi-IPO hook).",
+      "required": ["total", "items"], "optional": ["kicker", "label", "decimals", "prefix", "suffix", "footer"],
+      "example": {"kicker": "15 October · 4 IPOs · 1 din", "label": "Total issue size", "total": 8800, "prefix": "₹", "suffix": " Cr+", "items": [{"label": "Zetwerk", "value": 5012.33, "display": "₹5,012.33 Cr", "at": "Zetwerk, Bonfiglioli"}], "footer": {"tag": "BIDDING", "text": "15 Oct → 19 Oct", "at": "19 October"}}
+    },
+    "SplitBar": {
+      "use": "Parts of one whole side by side (fresh issue vs OFS).",
+      "required": ["total", "parts"], "optional": ["kicker"],
+      "example": {"kicker": "Zetwerk · ₹5,012.33 Cr issue", "total": 5012.33, "parts": [{"label": "FRESH ISSUE", "value": 2830, "display": "₹2,830 Cr", "note": "goes to the company", "tone": "accent"}, {"label": "OFS", "value": 2182.33, "display": "₹2,182.33 Cr", "note": "goes to selling shareholders", "tone": "neutral", "at": "₹2,182.33 crore"}]}
+    },
+    "AmountRows": {
+      "use": "Labelled amounts with bars (use of proceeds); rows without value show a striped 'pending' bar; optional source table image panned to its amounts column.",
+      "required": ["max", "rows"], "optional": ["kicker", "image"],
+      "example": {"kicker": "Fresh issue ka paisa kahan jayega", "max": 2830, "rows": [{"label": "Repay company's borrowings", "value": 1300, "display": "₹1,300 Cr", "tone": "neutral", "at": "₹1,300 crore"}, {"label": "Rest: acquisitions + general corporate purposes", "at": "baaki acquisitions"}], "image": {"src": "objects.png", "width": 2044, "height": 526, "scale": 0.75, "at": "₹1,300 crore"}}
+    },
+    "Bars": {
+      "use": "Flat bars from a baseline comparing 2 to 5 values (template F).",
+      "required": ["bars"], "optional": ["title", "max", "height"],
+      "example": {"title": "Of the *top 25%* funds, how many stayed there?", "max": 100, "bars": [{"label": "Next 5 years (avg)", "value": 21, "display": "21%"}, {"label": "Next 3 years (avg)", "value": 26, "display": "26%", "at": "3 saal"}]}
+    },
+    "Calculation": {
+      "use": "a × b = result (lot size × upper band = minimum investment). Add a matching entry to plan.checks.",
+      "required": ["terms", "result"], "optional": ["kicker", "op"],
+      "example": {"kicker": "Minimum investment (retail)", "terms": [{"value": "12", "label": "shares (1 lot)"}, {"value": "₹1,119", "label": "upper band"}], "result": {"label": "Minimum", "value": "₹13,428", "at": "yaani upper band"}}
+    },
+    "EntityCard": {
+      "use": "Company / fund card (redesigned X card): stats appear exactly when spoken. icon: factory | gear | radar | heart | tower | chart.",
+      "required": ["name", "stats"], "optional": ["number", "sector", "icon", "blurb", "badge", "footnote"],
+      "example": {"number": 1, "sector": "Manufacturing", "name": "Zetwerk Manufacturing Businesses Ltd", "icon": "factory", "blurb": "Tech-led manufacturing platform", "stats": [{"label": "Price band", "value": "₹143 - ₹151", "big": true, "at": "Price band ₹143"}, {"label": "Issue size", "value": "₹5,012.33 Cr", "big": true, "at": "issue size ₹5,012.33"}, {"label": "Lot size", "value": "99 shares"}, {"label": "Min. investment (upper band)", "value": "₹14,949"}], "badge": {"text": "Fresh + OFS", "tone": "accent"}, "footnote": "Retail portion: 10% · Dates: 15 - 19 Oct"}
+    },
+    "FlowExplainer": {
+      "use": "Two money/ownership flows compared (fresh issue vs OFS), chips per item, optional dark callout.",
+      "required": ["lanes"], "optional": ["kicker", "chips", "callout"],
+      "example": {"kicker": "Fresh issue vs OFS", "chips": [{"label": "Zetwerk: Fresh + OFS", "tone": "accent", "at": "Zetwerk ko chhodkar"}], "lanes": [{"title": "FRESH ISSUE", "from": "New shares", "to": "Company", "note": "Company raises money", "tone": "accent"}, {"title": "OFS (OFFER FOR SALE)", "from": "Existing shareholders", "to": "Sellers", "note": "No new shares", "tone": "neutral", "at": "OFS yaani"}], "callout": {"big": "₹0", "text": "OFS money goes to the selling shareholders, not the company", "tone": "note", "at": "kuch nahi milta"}}
+    },
+    "Checklist": {
+      "use": "Numbered points arriving one by one (what to check instead).",
+      "required": ["items"], "optional": ["title"],
+      "example": {"title": "Not just *past returns*", "items": [{"text": "Performance across market conditions", "at": "market conditions"}, {"text": "Risk", "at": "risk"}]}
+    },
+    "RowsReveal": {
+      "use": "Rows sliding in: lead label + pill + note (year-by-year leader).",
+      "required": ["rows"], "optional": ["title"],
+      "example": {"title": "The *leader keeps changing*", "rows": [{"lead": "2023", "pill": "Small cap ahead", "note": "of large & mid cap", "at": "2023"}]}
+    },
+    "Timeline": {
+      "use": "Key dates in order (close, allotment, listing).",
+      "required": ["items"], "optional": ["kicker"],
+      "example": {"kicker": "Key dates", "items": [{"label": "IPO closes", "date": "23 Oct", "at": "23 October tak"}, {"label": "Listing", "date": "28 Oct", "at": "listing 28"}]}
+    },
+    "DocCard": {
+      "use": "Report / document card with slight 3D tilt and category pills (template E).",
+      "required": ["title"], "optional": ["kicker", "pills", "pillsAt"],
+      "example": {"kicker": "FundsIndia · October 2026 report", "title": "Analysed *diversified equity funds*", "pills": ["Large cap", "Mid cap", "ELSS"], "pillsAt": "large cap"}
+    },
+    "TileDrop": {
+      "use": "N numbered tiles; at dropAt all but `keep` (0-based) fall away in red, kept turn green.",
+      "required": ["title", "keep"], "optional": ["count", "dropAt", "result", "sub"],
+      "example": {"title": "Top 5 funds of the *last 5 years*", "count": 5, "keep": [2], "dropAt": "4 out of 5", "result": "4 out of 5 lose that spot", "sub": "in the next 5 years"}
+    },
+    "DotGrid": {
+      "use": "Grid of dots (default 100); at fadeAt all but `keep` fade, kept turn green ('only 4 of 100').",
+      "required": ["title", "keep"], "optional": ["total", "fadeAt", "result", "sub"],
+      "example": {"title": "At one point, *100 top funds*", "keep": [12, 37, 58, 83], "fadeAt": "sirf 4", "result": "Only 4 stayed on top", "sub": "for the next 5 years"}
+    },
+    "Ranking": {
+      "use": "A ranked list where one item (`mover`, 0-based) slides to position `to` as others pass it; optional note.",
+      "required": ["items", "mover", "to"], "optional": ["title", "moverNote", "moveAt", "note"],
+      "example": {"title": "Out of the top 25% *≠ bad returns*", "items": ["Your fund", "Fund A", "Fund B", "Fund C"], "mover": 0, "to": 2, "moverNote": "same returns", "note": {"text": "Note: the data mixes categories.", "at": "categories"}}
+    },
+    "ImageCallout": {
+      "use": "Chart/table screenshot with boxes on discussed rows (source pixel coords) + value tiles.",
+      "required": ["src", "srcWidth"], "optional": ["width", "highlights", "tiles"],
+      "example": {"src": "chart.png", "srcWidth": 1872, "highlights": [{"x": 140, "y": 565, "w": 1560, "h": 52, "tone": "loss", "at": "2007"}], "tiles": [{"label": "2007-11 top funds", "value": "4%", "note": "stayed on top", "tone": "loss", "at": "2007"}]}
+    },
+    "ImageCard": {
+      "use": "News clipping / tweet screenshot as a clean card (reflow wide clippings first with reflow.py), optional highlighter wipe.",
+      "required": ["src", "width", "height"], "optional": ["caption", "highlight"],
+      "example": {"src": "clip_wrapped.png", "width": 860, "height": 420, "highlight": {"x": 0, "y": 40, "w": 600, "h": 50, "at": "fully subscribed"}}
+    }
+  },
+  "scenes": {
+    "paper": "off-white + dot grid (default ground, data explainers)",
+    "market": "candles + rising line (intro, CTA, market topics)",
+    "factory": "factory roofs, supplier network, gears (manufacturing)",
+    "gears": "gears + wind turbines (industrial, power transmission, engineering, energy)",
+    "radar": "radar sweeps + imaging band (defence, security, imaging)",
+    "medical": "heartbeat line, stent mesh, plus signs (healthcare, medical devices, pharma)",
+    "telecom": "skyline + lattice towers with signal arcs (telecom, internet, digital)"
+  }
+}

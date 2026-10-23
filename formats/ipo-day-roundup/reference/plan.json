@@ -1,0 +1,156 @@
+{
+  "_about": "Reference plan for the approved 4-IPO Short (15 Oct 2026), rebuilt for the template library. Anchors are words of reference/script.txt. Figures from the script and the X cards in reference_script.docx.",
+  "format": "ipo-day-roundup",
+  "channel": "ipo-review",
+  "theme": "light-blue",
+  "layout": "card-top",
+  "header": {"topic": "4 IPOs · 15 October"},
+  "presenter": {"src": "presenter.webm", "offset": 0},
+  "voice": "voice.m4a",
+  "ra": {"name": "Bavadharini KS", "date": "14-10-2026"},
+  "sections": [
+    {"scene": "market", "at": "start"},
+    {"scene": "factory", "at": "No. 1 is"},
+    {"scene": "gears", "at": "Second is"},
+    {"scene": "radar", "at": "Third is"},
+    {"scene": "medical", "at": "Fourth is"},
+    {"scene": "market", "at": "Aise hi IPO"}
+  ],
+  "beats": [
+    {"id": "hook", "at": "start", "until": "Ek important baat", "component": "StackedTotal", "props": {
+      "kicker": "15 October · 4 IPOs · 1 din", "label": "Total issue size", "total": 8800, "prefix": "₹", "suffix": " Cr+",
+      "items": [
+        {"label": "Zetwerk", "value": 5012.33, "display": "₹5,012.33 Cr", "at": "Zetwerk, Bonfiglioli"},
+        {"label": "Bonfiglioli", "value": 2533.66, "display": "₹2,533.66 Cr", "at": {"phrase": "Bonfiglioli Transmissions,", "after": "15 October"}},
+        {"label": "Tonbo", "value": 852.18, "display": "₹852.18 Cr", "at": "Tonbo Imaging India aur"},
+        {"label": "Sahajanand", "value": 475.48, "display": "₹475.48 Cr", "at": "Sahajanand Medical Technologies ke"}
+      ],
+      "footer": {"tag": "BIDDING", "text": "15 Oct → 19 Oct", "at": "19 October"}}},
+    {"id": "ofs", "at": "Ek important baat", "until": "No. 1 is", "component": "FlowExplainer", "props": {
+      "kicker": "Ek important baat: Fresh issue vs OFS",
+      "chips": [
+        {"label": "Zetwerk: Fresh + OFS", "tone": "accent", "at": "Zetwerk ko chhodkar"},
+        {"label": "Bonfiglioli: OFS only", "at": "Zetwerk ko chhodkar"},
+        {"label": "Tonbo: OFS only", "at": "Zetwerk ko chhodkar"},
+        {"label": "Sahajanand: OFS only", "at": "Zetwerk ko chhodkar"}
+      ],
+      "lanes": [
+        {"title": "FRESH ISSUE", "from": "New shares", "to": "Company", "note": "Company raises money", "tone": "accent", "at": {"phrase": "OFS yaani", "offset": -0.67}},
+        {"title": "OFS (OFFER FOR SALE)", "from": "Existing shareholders", "to": "Sellers", "note": "Shares change hands, no new shares", "tone": "neutral", "at": "OFS yaani"}
+      ],
+      "callout": {"big": "₹0", "text": "OFS money goes to the selling shareholders, not the company", "tone": "note", "at": "kuch nahi milta"}}},
+    {"id": "zetwerk", "at": "No. 1 is", "until": "Isme ₹2,830", "component": "EntityCard", "props": {
+      "number": 1, "sector": "Manufacturing", "name": "Zetwerk Manufacturing Businesses Ltd", "icon": "factory",
+      "blurb": "Tech-led manufacturing platform: delivers customer orders through its own factories and a supplier network",
+      "stats": [
+        {"label": "Price band", "value": "₹143 - ₹151", "big": true, "at": "Price band ₹143"},
+        {"label": "Issue size", "value": "₹5,012.33 Cr", "big": true, "at": "issue size ₹5,012.33"},
+        {"label": "Lot size", "value": "99 shares"},
+        {"label": "Min. investment (upper band)", "value": "₹14,949"}
+      ],
+      "badge": {"text": "Fresh + OFS", "tone": "accent", "at": {"phrase": "issue size ₹5,012.33", "offset": 1.2}},
+      "footnote": "Retail portion: 10% · Dates: 15 - 19 Oct"}},
+    {"id": "zetSplit", "at": "Isme ₹2,830", "until": "Fresh issue se", "component": "SplitBar", "source": "Zetwerk Manufacturing Businesses Limited RHP", "props": {
+      "kicker": "Zetwerk · ₹5,012.33 Cr issue", "total": 5012.33,
+      "parts": [
+        {"label": "FRESH ISSUE", "value": 2830, "display": "₹2,830 Cr", "note": "goes to the company", "tone": "accent", "at": "Isme ₹2,830"},
+        {"label": "OFS", "value": 2182.33, "display": "₹2,182.33 Cr", "note": "goes to selling shareholders", "tone": "neutral", "at": "₹2,182.33 crore"}
+      ]}},
+    {"id": "zetObjects", "at": "Fresh issue se", "until": "Second is", "component": "AmountRows", "source": "Zetwerk Manufacturing Businesses Limited RHP", "props": {
+      "kicker": "Fresh issue ka paisa kahan jayega", "max": 2830,
+      "rows": [
+        {"label": "Repay company's borrowings", "value": 1300, "display": "₹1,300 Cr", "tone": "accent", "at": "₹1,300 crore"},
+        {"label": "Repay subsidiaries' borrowings", "value": 860, "display": "₹860 Cr", "tone": "neutral", "at": "₹860 crore"},
+        {"label": "Rest: acquisitions + general corporate purposes", "at": "baaki acquisitions"}
+      ],
+      "image": {"src": "zetwerk_objects.png", "width": 2044, "height": 526, "scale": 0.75, "at": "₹1,300 crore"}}},
+    {"id": "bonfiglioli", "at": "Second is", "until": "Third is", "component": "EntityCard", "props": {
+      "number": 2, "sector": "Power transmission", "name": "Bonfiglioli Transmissions Ltd", "icon": "gear",
+      "blurb": "Mechanical and electro-mechanical power transmission solutions, used from industrial automation to wind",
+      "stats": [
+        {"label": "Price band", "value": "₹558 - ₹586", "big": true, "at": "Price band ₹558"},
+        {"label": "Issue size", "value": "₹2,533.66 Cr", "big": true, "at": "issue size ₹2,533.66"},
+        {"label": "Lot size", "value": "25 shares"},
+        {"label": "Min. investment (upper band)", "value": "₹14,650"}
+      ],
+      "badge": {"text": "OFS only", "at": "poora OFS hai"},
+      "footnote": "Retail portion: 35% · Dates: 15 - 19 Oct"}},
+    {"id": "tonbo", "at": "Third is", "until": "Fourth is", "component": "EntityCard", "props": {
+      "number": 3, "sector": "Defence imaging", "name": "Tonbo Imaging India Ltd", "icon": "radar",
+      "blurb": "Designs imaging and sensing systems for defence and security forces: thermal imaging, surveillance, targeting",
+      "stats": [
+        {"label": "Price band", "value": "₹665 - ₹700", "big": true, "at": "Price band ₹665"},
+        {"label": "Issue size", "value": "₹852.18 Cr", "big": true, "at": "issue size ₹852.18"},
+        {"label": "Lot size", "value": "21 shares"},
+        {"label": "Min. investment (upper band)", "value": "₹14,700"}
+      ],
+      "badge": {"text": "OFS only", "at": {"phrase": "poora OFS", "after": "issue size ₹852.18"}},
+      "footnote": "Retail portion: 35% · Dates: 15 - 19 Oct"}},
+    {"id": "sahajanand", "at": "Fourth is", "until": "Aise hi IPO", "component": "EntityCard", "props": {
+      "number": 4, "sector": "Medical devices", "name": "Sahajanand Medical Technologies Ltd", "icon": "heart",
+      "blurb": "Makes medical devices such as cardiac stents, used to keep narrow or blocked arteries open",
+      "stats": [
+        {"label": "Price band", "value": "₹327 - ₹344", "big": true, "at": "Price band ₹327"},
+        {"label": "Issue size", "value": "₹475.48 Cr", "big": true, "at": "issue size ₹475.48"},
+        {"label": "Lot size", "value": "43 shares"},
+        {"label": "Min. investment (upper band)", "value": "₹14,792"}
+      ],
+      "badge": {"text": "OFS only", "at": {"phrase": "poora OFS", "after": "issue size ₹475.48"}},
+      "footnote": "Retail portion: 35% · Dates: 15 - 19 Oct"}}
+  ],
+  "zooms": [{"at": "Aise hi IPO", "until": "end", "scale": 1.08}],
+  "endCard": {"at": "Aise hi IPO"},
+  "checks": [
+    {"label": "Zetwerk min. investment", "expr": "99*151", "equals": "14949"},
+    {"label": "Bonfiglioli min. investment", "expr": "25*586", "equals": "14650"},
+    {"label": "Tonbo min. investment", "expr": "21*700", "equals": "14700"},
+    {"label": "Sahajanand min. investment", "expr": "43*344", "equals": "14792"},
+    {"label": "Zetwerk fresh + OFS = issue size", "expr": "2830+2182.33", "equals": "5012.33"},
+    {"label": "Total issue size over ₹8,800 Cr", "expr": "5012.33+2533.66+852.18+475.48", "atLeast": "8800"}
+  ],
+  "captions": [
+    {"span": "Ek din mein 4 IPO,", "text": "4 IPOs in one day,"},
+    {"span": "aur total issue size ₹8,800 crore se zyada.", "text": "and a total issue size of over ₹8,800 crore."},
+    {"span": "15 October ko Zetwerk, Bonfiglioli Transmissions,", "text": "On 15 October, Zetwerk, Bonfiglioli Transmissions,"},
+    {"span": "Tonbo Imaging India aur Sahajanand Medical Technologies", "text": "Tonbo Imaging India and Sahajanand Medical Technologies"},
+    {"span": "ke IPOs khul rahe hain,", "text": "IPOs are opening,"},
+    {"span": "aur chaaron mein bidding 19 October tak chalegi.", "text": "and bidding in all four runs till 19 October."},
+    {"span": "Ek important baat pehle samajh lein.", "text": "First, let's understand one important thing."},
+    {"span": "Zetwerk ko chhodkar baaki 3 IPOs pure OFS hain.", "text": "Except Zetwerk, the other 3 IPOs are pure OFS."},
+    {"span": "OFS yaani Offer for Sale,", "text": "OFS means Offer for Sale,"},
+    {"span": "jismein company naye shares jaari nahi karti,", "text": "where the company does not issue new shares,"},
+    {"span": "balki existing shareholders apne shares bechte hain.", "text": "instead existing shareholders sell their shares."},
+    {"span": "Isliye us paise mein se company ko kuch nahi milta,", "text": "So the company gets nothing from that money,"},
+    {"span": "woh seedha bechne wale shareholders ko jaata hai.", "text": "it goes straight to the selling shareholders."},
+    {"span": "Zetwerk mein fresh issue bhi hai aur OFS bhi.", "text": "Zetwerk has both a fresh issue and an OFS."},
+    {"span": "No. 1 is Zetwerk Manufacturing Businesses Limited:", "text": "No. 1 is Zetwerk Manufacturing Businesses Limited:"},
+    {"span": "Zetwerk ek technology-led manufacturing platform hai,", "text": "Zetwerk is a technology-led manufacturing platform"},
+    {"span": "jo customers ke orders", "text": "that gets customer orders fulfilled"},
+    {"span": "apni factories aur suppliers ke network ke zariye poore karwati hai.", "text": "through its own factories and its suppliers' network."},
+    {"span": "Price band ₹143 se ₹151 per share,", "text": "Price band ₹143 to ₹151 per share,"},
+    {"span": "issue size ₹5,012.33 crore.", "text": "issue size ₹5,012.33 crore."},
+    {"span": "Isme ₹2,830 crore ka fresh issue hai", "text": "Of this, ₹2,830 crore is a fresh issue"},
+    {"span": "aur ₹2,182.33 crore ka OFS.", "text": "and ₹2,182.33 crore is OFS."},
+    {"span": "Fresh issue se ₹1,300 crore company ka karza chukane mein,", "text": "From the fresh issue, ₹1,300 crore goes to repaying the company's debt,"},
+    {"span": "₹860 crore subsidiaries ke karze pay off karne mein,", "text": "₹860 crore to paying off subsidiaries' debt,"},
+    {"span": "aur baaki acquisitions aur general corporate purposes mein lagega.", "text": "and the rest to acquisitions and general corporate purposes."},
+    {"span": "Second is Bonfiglioli Transmissions Limited:", "text": "Second is Bonfiglioli Transmissions Limited:"},
+    {"span": "Yeh company mechanical aur electro-mechanical power transmission solutions banati hai,", "text": "This company makes mechanical and electro-mechanical power transmission solutions,"},
+    {"span": "jo industrial automation se lekar wind sector tak use hote hain.", "text": "used from industrial automation to the wind sector."},
+    {"span": "Price band ₹558 se ₹586 per share,", "text": "Price band ₹558 to ₹586 per share,"},
+    {"span": "issue size ₹2,533.66 crore, aur yeh poora OFS hai.", "text": "issue size ₹2,533.66 crore, and it is entirely OFS."},
+    {"span": "Third is Tonbo Imaging India Limited:", "text": "Third is Tonbo Imaging India Limited:"},
+    {"span": "Defence aur security forces ko jo imaging aur sensing systems chahiye,", "text": "The imaging and sensing systems that defence and security forces need,"},
+    {"span": "Tonbo unhe design karti hai,", "text": "Tonbo designs them,"},
+    {"span": "jaise thermal imaging, surveillance aur targeting.", "text": "such as thermal imaging, surveillance and targeting."},
+    {"span": "Price band ₹665 se ₹700 per share,", "text": "Price band ₹665 to ₹700 per share,"},
+    {"span": "issue size ₹852.18 crore, poora OFS.", "text": "issue size ₹852.18 crore, entirely OFS."},
+    {"span": "Fourth is Sahajanand Medical Technologies Limited:", "text": "Fourth is Sahajanand Medical Technologies Limited:"},
+    {"span": "Yeh company cardiac stents jaise medical devices banati hai,", "text": "This company makes medical devices such as cardiac stents,"},
+    {"span": "jinka use narrow ya blocked arteries ko khula rakhne mein hota hai.", "text": "used to keep narrow or blocked arteries open."},
+    {"span": "Price band ₹327 se ₹344 per share,", "text": "Price band ₹327 to ₹344 per share,"},
+    {"span": "issue size ₹475.48 crore, poora OFS.", "text": "issue size ₹475.48 crore, entirely OFS."},
+    {"span": "Aise hi IPO updates ke liye channel ko Like aur Subscribe karein", "text": "For more IPO updates like this, Like and Subscribe to the channel"},
+    {"span": "aur comments mein batao app kis IPO mein apply kar rahe ho", "text": "and tell us in the comments which IPO you are applying in"}
+  ]
+}

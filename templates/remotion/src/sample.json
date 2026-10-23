@@ -1,0 +1,246 @@
+{
+ "fps": 30,
+ "width": 1080,
+ "height": 1920,
+ "duration": 10.0,
+ "layout": "card-top",
+ "brand": {
+  "name": "Groww",
+  "palette": {
+   "black": "#0B0B0B",
+   "white": "#FFFFFF",
+   "paper": "#F8F7F5",
+   "ground": "#F8F8F8",
+   "ink": "#0F0F0F",
+   "sub": "#5C6170",
+   "track": "#E4E6EE",
+   "line": "#DCE3E1",
+   "blue": "#5367FC",
+   "navy": "#1E2A7D",
+   "blueTint": "#E8EBFF",
+   "green": "#00D09C",
+   "greenDark": "#016F53",
+   "greenTint": "#DDF7EF",
+   "mint": "#67F9C8",
+   "red": "#FF5757",
+   "redTint": "#FFE3E3",
+   "yellow": "#F7CC69",
+   "yellowTint": "#FDF3DA"
+  },
+  "series": [
+   "#5367FC",
+   "#1E2A7D",
+   "#8E9BFF",
+   "#B8C1FF",
+   "#3A4AC4"
+  ],
+  "tones": {
+   "profit": {
+    "main": "#00D09C",
+    "dark": "#016F53",
+    "tint": "#DDF7EF",
+    "means": "profit / positive / above 1x"
+   },
+   "loss": {
+    "main": "#FF5757",
+    "dark": "#C23B3B",
+    "tint": "#FFE3E3",
+    "means": "loss / caution / below 1x / risk"
+   },
+   "note": {
+    "main": "#F7CC69",
+    "dark": "#8A6A1C",
+    "tint": "#FDF3DA",
+    "means": "disclaimer / note / pending"
+   },
+   "neutral": {
+    "main": "#5367FC",
+    "dark": "#1E2A7D",
+    "tint": "#E8EBFF",
+    "means": "structure, labels, neutral numbers"
+   }
+  },
+  "fonts": {
+   "sans": "\"Inter Tight\", \"Helvetica Neue\", Helvetica, Arial, sans-serif",
+   "serif": "\"IvyPresto Display\", Didot, \"Bodoni 72\", Georgia, serif"
+  },
+  "layout": {
+   "headerBandBottom": 220,
+   "safe": {
+    "left": 60,
+    "right": 960,
+    "top": 220,
+    "bottom": 1480
+   },
+   "cardTop": 240,
+   "cardBottom": 1010,
+   "captionTop": 1300,
+   "captionTopWithCard": 1040,
+   "presenterDrop": 560,
+   "sourceTop": 168
+  },
+  "motion": {
+   "easing": "ease-out-cubic",
+   "forbidden": [
+    "spring",
+    "bounce",
+    "elastic",
+    "shake",
+    "progress-bar",
+    "running-subtitle-pop"
+   ],
+   "cardInMs": 400,
+   "itemInMs": 300,
+   "staggerMs": 70,
+   "fadeOutMs": 200,
+   "pushInPct": 2.5,
+   "cueLeadSec": 0.25,
+   "itemLeadSec": 0.1,
+   "sceneCrossfadeSec": 0.5
+  },
+  "captions": {
+   "language": "en",
+   "maxChars": 48,
+   "bg": "rgba(20,20,20,0.88)",
+   "color": "#FFFFFF",
+   "size": 44,
+   "weight": 600,
+   "radius": 18
+  },
+  "framing": {
+   "alternatePunch": [
+    1.0,
+    1.06
+   ],
+   "mcu": 1.22,
+   "endZoom": 1.08
+  },
+  "compliance": {
+   "openingLines": [
+    "SEBI registered name: Groww Invest Tech Private Limited",
+    "SEBI Research Analyst registration number: INH200008662"
+   ],
+   "openingSeconds": 5,
+   "raLine": "Research Analyst: {raName} · RA Date: {raDate} · RA disclaimer link in channel 'About' section"
+  },
+  "logo": {
+   "onLight": "brand/groww_logo_dark_text.png",
+   "onDark": "brand/groww_logo_white_text.png",
+   "icon": "brand/groww_icon.png",
+   "width": 230,
+   "right": 50,
+   "top": 80,
+   "always": true
+  }
+ },
+ "theme": {
+  "ground": "#F8F8F8",
+  "tint": "#E8EBFF",
+  "accent": "#5367FC",
+  "accentDark": "#1E2A7D",
+  "text": "#0F0F0F",
+  "dark": false
+ },
+ "header": {
+  "tag": "IPO REVIEW",
+  "topic": "Setup test"
+ },
+ "presenter": null,
+ "voice": null,
+ "segments": [],
+ "sections": [
+  {
+   "scene": "market",
+   "from": 0.0
+  },
+  {
+   "scene": "factory",
+   "from": 4.75
+  }
+ ],
+ "talk": [],
+ "cues": [
+  {
+   "id": "total",
+   "component": "StackedTotal",
+   "from": 0.05,
+   "to": 4.55,
+   "source": null,
+   "props": {
+    "kicker": "Setup test · 2 items",
+    "label": "Total",
+    "total": 300,
+    "prefix": "₹",
+    "suffix": " Cr",
+    "items": [
+     {
+      "label": "Alpha",
+      "value": 200,
+      "display": "₹200 Cr",
+      "at": 1.0
+     },
+     {
+      "label": "Beta",
+      "value": 100,
+      "display": "₹100 Cr",
+      "at": 2.0
+     }
+    ]
+   }
+  },
+  {
+   "id": "card",
+   "component": "EntityCard",
+   "from": 4.75,
+   "to": 8.15,
+   "source": "Test data",
+   "props": {
+    "number": 1,
+    "sector": "Test sector",
+    "name": "Alpha Test Ltd",
+    "icon": "factory",
+    "stats": [
+     {
+      "label": "Price band",
+      "value": "₹10 - ₹12",
+      "big": true,
+      "at": 5.5
+     },
+     {
+      "label": "Lot size",
+      "value": "100 shares",
+      "at": 6.0
+     }
+    ],
+    "badge": {
+     "text": "Fresh issue",
+     "tone": "accent",
+     "at": 6.5
+    }
+   }
+  }
+ ],
+ "captions": [
+  {
+   "from": 0.3,
+   "to": 2.5,
+   "text": "This is a setup test render."
+  },
+  {
+   "from": 2.5,
+   "to": 5.0,
+   "text": "Captions sit above the Shorts UI."
+  },
+  {
+   "from": 5.0,
+   "to": 8.75,
+   "text": "Cards come from the template library."
+  }
+ ],
+ "zooms": [],
+ "endCard": {
+  "from": 8.6,
+  "text": "This content is for educational purposes only and does not constitute investment advice or a stock recommendation. Read the RHP before making investment decisions.",
+  "ra": "Research Analyst: Test Analyst · RA Date: 01-01-2026 · RA disclaimer link in channel 'About' section"
+ }
+}

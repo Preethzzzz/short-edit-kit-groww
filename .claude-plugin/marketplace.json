@@ -1,0 +1,18 @@
+{
+  "name": "groww-video",
+  "owner": {
+    "name": "Preethzzzz",
+    "url": "https://github.com/Preethzzzz"
+  },
+  "metadata": {
+    "description": "Groww video editing tools for Claude Code."
+  },
+  "plugins": [
+    {
+      "name": "short-edit-kit-groww",
+      "source": "./",
+      "description": "Edit green-screen footage + script into a branded vertical Short (Groww brand pack).",
+      "version": "0.1.0"
+    }
+  ]
+}

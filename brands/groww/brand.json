@@ -1,0 +1,78 @@
+{
+  "name": "Groww",
+  "guidelines": "BRAND_GUIDELINES.md",
+  "canvas": {"width": 1080, "height": 1920, "fps": 30},
+
+  "palette": {
+    "black": "#0B0B0B", "white": "#FFFFFF", "paper": "#F8F7F5", "ground": "#F8F8F8",
+    "ink": "#0F0F0F", "sub": "#5C6170", "track": "#E4E6EE", "line": "#DCE3E1",
+    "blue": "#5367FC", "navy": "#1E2A7D", "blueTint": "#E8EBFF",
+    "green": "#00D09C", "greenDark": "#016F53", "greenTint": "#DDF7EF", "mint": "#67F9C8",
+    "red": "#FF5757", "redTint": "#FFE3E3",
+    "yellow": "#F7CC69", "yellowTint": "#FDF3DA"
+  },
+  "series": ["#5367FC", "#1E2A7D", "#8E9BFF", "#B8C1FF", "#3A4AC4"],
+  "tones": {
+    "profit":  {"main": "#00D09C", "dark": "#016F53", "tint": "#DDF7EF", "means": "profit / positive / above 1x"},
+    "loss":    {"main": "#FF5757", "dark": "#C23B3B", "tint": "#FFE3E3", "means": "loss / caution / below 1x / risk"},
+    "note":    {"main": "#F7CC69", "dark": "#8A6A1C", "tint": "#FDF3DA", "means": "disclaimer / note / pending"},
+    "neutral": {"main": "#5367FC", "dark": "#1E2A7D", "tint": "#E8EBFF", "means": "structure, labels, neutral numbers"}
+  },
+  "themes": {
+    "light-blue":  {"ground": "#F8F8F8", "tint": "#E8EBFF", "accent": "#5367FC", "accentDark": "#1E2A7D", "text": "#0F0F0F", "dark": false},
+    "light-green": {"ground": "#F8F8F8", "tint": "#DDF7EF", "accent": "#00D09C", "accentDark": "#016F53", "text": "#0F0F0F", "dark": false},
+    "dark-blue":   {"ground": "#0F0F0F", "tint": "#202020", "accent": "#5367FC", "accentDark": "#1E2A7D", "text": "#F8F8F8", "dark": true},
+    "dark-green":  {"ground": "#0F0F0F", "tint": "#202020", "accent": "#00D09C", "accentDark": "#016F53", "text": "#F8F8F8", "dark": true}
+  },
+  "defaultTheme": "light-blue",
+  "fonts": {
+    "sans": "\"Inter Tight\", \"Helvetica Neue\", Helvetica, Arial, sans-serif",
+    "serif": "\"IvyPresto Display\", Didot, \"Bodoni 72\", Georgia, serif"
+  },
+
+  "logo": {
+    "onLight": "logo/groww_logo_dark_text.png",
+    "onDark": "logo/groww_logo_white_text.png",
+    "icon": "logo/groww_icon.png",
+    "width": 230, "right": 50, "top": 80,
+    "always": true
+  },
+  "layout": {
+    "headerBandBottom": 220,
+    "safe": {"left": 60, "right": 960, "top": 220, "bottom": 1480},
+    "cardTop": 240, "cardBottom": 1010,
+    "captionTop": 1300, "captionTopWithCard": 1040,
+    "presenterDrop": 560,
+    "sourceTop": 168
+  },
+  "header": {"show": true},
+  "channels": {
+    "ipo-review": {"tag": "IPO REVIEW", "disclaimer": "This content is for educational purposes only and does not constitute investment advice or a stock recommendation. Read the RHP before making investment decisions."},
+    "mutual-funds": {"tag": null, "disclaimer": "This content is for educational purposes only and does not constitute investment advice or a recommendation. Past performance does not guarantee future results."}
+  },
+  "compliance": {
+    "openingLines": [
+      "SEBI registered name: Groww Invest Tech Private Limited",
+      "SEBI Research Analyst registration number: INH200008662"
+    ],
+    "openingSeconds": 5,
+    "raLine": "Research Analyst: {raName} · RA Date: {raDate} · RA disclaimer link in channel 'About' section"
+  },
+
+  "motion": {
+    "easing": "ease-out-cubic",
+    "forbidden": ["spring", "bounce", "elastic", "shake", "progress-bar", "running-subtitle-pop"],
+    "cardInMs": 400, "itemInMs": 300, "staggerMs": 70, "fadeOutMs": 200, "pushInPct": 2.5,
+    "cueLeadSec": 0.25, "itemLeadSec": 0.1, "sceneCrossfadeSec": 0.5
+  },
+  "captions": {
+    "language": "en",
+    "maxChars": 48,
+    "bg": "rgba(20,20,20,0.88)", "color": "#FFFFFF", "size": 44, "weight": 600, "radius": 18
+  },
+  "framing": {"alternatePunch": [1.0, 1.06], "mcu": 1.22, "endZoom": 1.08},
+
+  "presenterGrade": "eq=gamma=1.16:contrast=1.10:brightness=0.02:saturation=1.20,colorbalance=rm=0.04:gm=0.01:bm=-0.04:rh=0.02:bh=-0.02,unsharp=5:5:0.8",
+  "audio": {"lufs": -14, "truePeak": -1, "lra": 11, "fadeMs": 12, "pauseMaxSec": 0.40, "pauseKeepSec": 0.20, "sampleRate": 48000, "bitrate": "192k"},
+  "video": {"crf": 18, "codec": "h264"}
+}

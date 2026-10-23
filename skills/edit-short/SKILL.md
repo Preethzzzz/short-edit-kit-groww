@@ -1,0 +1,39 @@
+---
+name: edit-short
+description: Edit raw green-screen footage plus a finished script (DOCX, PDF or text) into a branded vertical Short. Runs the full flow - job setup, keying, transcription, retake and extra-word cuts synced to the script, English captions, visual plan, Remotion render, independent QA. Use when the user gives footage + script and asks for an edited Short / reel / video.
+---
+
+# Edit a Short
+
+Input: raw vertical footage (MP4/MOV) + finished script. Output: `JOB/out/final.mp4` + a report.
+Editing only: never write or rewrite the script itself.
+
+`K=${CLAUDE_PLUGIN_ROOT}` · `PY="<python from ~/.short-edit-kit/config.json> -I"` (run every script as `$PY $K/scripts/<name>.py`).
+Scripts print one-line summaries; read detail files (`*.txt`, `qa_checks.md`) only when needed. Run anything over ~2 min in the background (transcribe, key run, render).
+
+## Rules (standing, from the user)
+- Brand comes from the brand pack (`$K/brands/<brand>/brand.json` + `BRAND_GUIDELINES.md`). Never type a colour, font, logo path or disclaimer anywhere else.
+- Captions in English, translated phrase by phrase from the Hinglish narration: exact meaning, no added claims, no dropped qualifiers ("kam se kam" = "at least", "lagbhag" = "about"), every number and name unchanged; each caption timed to the Hinglish phrase it translates.
+- Narration must match the script: cut spoken words not in the script (fillers, added lead-ins, retakes) when the cut is clean; verify every cut by re-transcribing the joined audio (`check_joins.py`). Not extra: Whisper-split numbers, "rupees" for ₹, split hyphenated words, Hindi spellings of English words.
+- Hindi-heavy audio: Whisper `--lang hi`, no English `--prompt` (it translates otherwise). Full-clip runs merge repeated takes: re-check suspicious stretches with `--pieces`.
+- Every on-screen number matches the script (or `work/facts.txt`, read off the script's images). Logo top-right whole video, header band y 0-220 kept clear, source credit top-right under the logo. Ease-out only, no bounce, no progress bar.
+- Green screen: sample the colour per shoot; chromakey on clean screens, `--greenness 6 16 GARBAGE_Y` on dull/uneven ones; face mask must have no holes. Grade and audio targets come from the brand pack.
+- Cost: keep context small. Agents pass work through files in `JOB/work/`, not chat; every agent prompt is just `K=<plugin root> JOB=<job path>` plus the task. Routine agents run on Sonnet; only the content strategist and brand-new designs use Opus.
+
+## Steps
+0. **Preflight.** If `~/.short-edit-kit/config.json` is missing, run the `setup` skill first. Ask the user, in ONE batched question: format (if not obvious: `ipo-day-roundup` or `data-explainer`, see the format skills), channel (`ipo-review` / `mutual-funds`), RA name and RA date, header topic text, job name. Load the matching format skill.
+1. **Job.** `$PY $K/scripts/init_job.py FOOTAGE SCRIPT --name SLUG --format F --channel C --root jobs` (jobs live in the current project folder). Put RA name/date into `job.json`.
+2. **Script + images.** Read `work/script_raw.txt`. View every image in `work/images/` and map it by what it shows (never by filename). Write `work/script.txt`: the spoken words only, exactly as written (no headings, `[IMAGE]` markers, source lines, RA block). Write `work/facts.txt`: numbers read off images, one per line with the image name. Copy images that will appear on screen into `public/` (crop/reflow with `reflow.py` as needed).
+3. **Key (background).** `key.py sample inputs/raw.*` -> `key.py test ... work/key_test.png` with the suggested keyer; view the sheet, pick the strength with ~0% holes -> `key.py run inputs/raw.* public/presenter.webm ...` in the background. Use `--trim A-B` only to drop long dead footage (offset is recorded in `presenter.json`; put it in plan.presenter.offset).
+4. **Transcribe (background).** `transcribe.py inputs/raw.* work/words_raw.json --lang hi`.
+5. **Editor agent** (`editor`, Sonnet): takes, cuts, `segments.json`, `public/voice.m4a`, `aligned.json`, joins check, English captions into `work/plan.json`, `work/edit_report.md`.
+6. **Content strategist agent** (`content-strategist`, Opus): `work/visual_plan.md` (one visual per script line) - can start as soon as step 2 is done, in parallel with 3-5.
+7. **Infographics agent** (`infographics`, Sonnet): turns the visual plan into `beats`, `sections`, `checks` in `work/plan.json`. If the plan needs a component or scene the library lacks, spawn **motion-graphics** with `model: opus` for that design; otherwise motion-graphics (Sonnet) does the timing/motion pass.
+8. **Assemble.** `build_plan.py work/plan.json work/edit.json --aligned work/aligned.json --segments work/segments.json --job job.json` (fix every ERROR; read warnings). Preview: `render.py JOB --frames 0-299 --out out/preview.mp4`, then `stills.py`; fix, then full `render.py JOB` in the background, then `stills.py out/final.mp4 out/sheet.png --edit work/edit.json`.
+9. **QA agent** (`qa-checker`, Sonnet, fresh context, give it only the job path). It writes `work/qa_report.md` with PASS/FAIL. On FAIL send the items to the owner agent (numbers/props: infographics; cuts/captions/audio: editor; motion/layout: motion-graphics), rebuild, re-render, re-run QA until PASS.
+10. **Report to the user** (short): output path; every removed word/retake with raw timestamps; every place she said something different from the script (e.g. "4" for "chaar"); names Whisper heard oddly (check by ear); creative decisions taken without instruction; anything unverified.
+
+## Files (JOB/)
+`job.json` · `inputs/raw.*`, `inputs/script.*` · `work/`: `script_raw.txt`, `images/`, `script.txt`, `facts.txt`, `words_raw.json(.txt)`, `segments.json`, `aligned.json`, `visual_plan.md`, `plan.json`, `edit.json`, `edit_report.md`, `qa_checks.md`, `qa_report.md` · `public/`: `presenter.webm`, `voice.m4a`, on-screen images, `brand/` · `custom/`: job-local components · `out/`: `final.mp4`, `sheet.png`, `render.log`.
+
+Plan schema: `$K/templates/remotion/components.json` (components, props, scenes) and the header of `$K/scripts/build_plan.py` (anchors). Worked examples: `$K/formats/*/reference/plan.json`.

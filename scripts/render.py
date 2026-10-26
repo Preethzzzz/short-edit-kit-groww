@@ -76,6 +76,16 @@ def main():
             except OSError:
                 shutil.copyfile(real, p)
 
+    # Sound: mix voice + bed + effects when the edit asks for it (scripts/build_mix.py).
+    mix_name = kitcfg.load(edit).get("mix")
+    if mix_name:
+        r = subprocess.run([c["python"], "-I", os.path.join(os.path.dirname(os.path.abspath(__file__)), "build_mix.py"), job, "--edit", edit, "--out", os.path.join("public", mix_name)],
+                           capture_output=True, text=True)
+        if r.returncode:
+            print("MIX FAILED:\n" + (r.stdout + r.stderr)[-600:])
+            sys.exit(1)
+        print(r.stdout.strip().splitlines()[-1])
+
     entry = sync_templates(c["remotion_dir"])
     ncustom = 0 if a.test else sync_custom(job, c["remotion_dir"])
     out = os.path.abspath(a.out) if a.out else os.path.join(job, "out", "test.mp4" if a.test else "final.mp4")

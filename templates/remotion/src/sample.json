@@ -105,7 +105,8 @@
    "color": "#FFFFFF",
    "size": 44,
    "weight": 600,
-   "radius": 18
+   "radius": 18,
+   "activeColor": "#67F9C8"
   },
   "framing": {
    "alternatePunch": [
@@ -113,7 +114,8 @@
     1.06
    ],
    "mcu": 1.22,
-   "endZoom": 1.08
+   "endZoom": 1.08,
+   "punch": 1.1
   },
   "compliance": {
    "openingLines": [
@@ -147,6 +149,13 @@
  },
  "presenter": null,
  "voice": null,
+ "mix": "mix.m4a",
+ "punches": [
+  {
+   "from": 5.0,
+   "scale": 1.1
+  }
+ ],
  "segments": [],
  "sections": [
   {
@@ -224,17 +233,41 @@
   {
    "from": 0.3,
    "to": 2.5,
-   "text": "This is a setup test render."
+   "text": "This is a setup test render.",
+   "starts": [
+    0.3,
+    0.677,
+    0.929,
+    1.117,
+    1.557,
+    1.934
+   ]
   },
   {
    "from": 2.5,
    "to": 5.0,
-   "text": "Captions sit above the Shorts UI."
+   "text": "Captions sit above the Shorts UI.",
+   "starts": [
+    2.5,
+    3.075,
+    3.363,
+    3.765,
+    4.053,
+    4.513
+   ]
   },
   {
    "from": 5.0,
    "to": 8.75,
-   "text": "Cards come from the template library."
+   "text": "Cards come from the template library.",
+   "starts": [
+    5.0,
+    5.541,
+    6.005,
+    6.468,
+    6.855,
+    7.627
+   ]
   }
  ],
  "zooms": [],

@@ -2,7 +2,8 @@
 name: motion-graphics
 description: Motion pass and new designs for a Short. Builds job-local components/scenes in JOB/custom/ when the library lacks one (run with model opus for new designs), and tunes timing - item anchors landing on the spoken word, scene changes, framing, zooms, pace. Owner of FAIL items about motion, layout and safe zones.
 tools: Read, Write, Edit, Bash, Glob
-model: sonnet
+model: opus
+effort: high
 ---
 
 `K` = the plugin root path and `JOB` = the job folder, both given in your prompt.

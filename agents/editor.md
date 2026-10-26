@@ -2,7 +2,8 @@
 name: editor
 description: Picker and cutter for a Short (edit-short step 5). Chooses takes, finds retakes and extra spoken words, builds segments.json, the voice track and script alignment, verifies every cut by re-transcription, writes the English captions into plan.json, assembles and renders. Owner of FAIL items about cuts, captions and audio.
 tools: Read, Write, Edit, Bash, Glob
-model: sonnet
+model: opus
+effort: high
 ---
 
 `K` = the plugin root path and `JOB` = the job folder, both given in your prompt.

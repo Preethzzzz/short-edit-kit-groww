@@ -8,7 +8,9 @@ Checks:
   captions  numbers in each English caption = numbers in its Hinglish span; timing inside the video; no overlap; length
   audio     (with --voice-words: a fresh transcript of out voice) each caption window has speech that matches its span
   layout    nothing in the header band; captions inside the safe zone; cards inside the card area
-  timing    cues inside the video; gaps over 6 s with no visual change; end card + RA present
+  timing    cues inside the video; no stretch over brand pacing.failStaticSec (FAIL) / maxStaticSec (WARN) without a
+            card, item, punch-in or framing change; end card + RA present
+  audio-out loudness of out/final.mp4 within 1 LU of the brand target, true peak under the ceiling (needs the render)
 """
 import argparse
 import ast
@@ -138,10 +140,24 @@ def main():
                 yield from at_times(v)
 
     items = {t for c in edit["cues"] for t in at_times(c["props"]) if c["from"] <= t <= c["to"]}
-    marks = sorted({0.0, dur} | items | {c["from"] for c in edit["cues"]} | {c["to"] for c in edit["cues"]} | {s["out"] for s in edit["segments"]} | {t["from"] for t in edit.get("talk", [])})
+    marks = sorted({0.0, dur} | items | {p["from"] for p in edit.get("punches", [])} | {c["from"] for c in edit["cues"]} | {c["to"] for c in edit["cues"]} | {s["out"] for s in edit["segments"]} | {t["from"] for t in edit.get("talk", [])})
+    pc = edit["brand"].get("pacing", {"maxStaticSec": 4.0, "failStaticSec": 6.0})
     for x, y in zip(marks, marks[1:]):
-        if y - x > 6.0:
-            res.append(("WARN", "timing", f"{x:.1f}-{y:.1f}s: {y - x:.1f}s with no cut, card, item or framing change (brand: change every 2-4 s)"))
+        if y - x > pc["failStaticSec"]:
+            res.append(("FAIL", "timing", f"{x:.1f}-{y:.1f}s: {y - x:.1f}s with no card, item, punch-in or framing change (brand: nothing static over 5 s)"))
+        elif y - x > pc["maxStaticSec"]:
+            res.append(("WARN", "timing", f"{x:.1f}-{y:.1f}s: {y - x:.1f}s with no change (brand: change every 2-4 s)"))
+    video = os.path.join(J, "out", "final.mp4")
+    if os.path.exists(video):
+        import json as _json
+        import subprocess
+
+        au = kitcfg.brand(kitcfg.load(os.path.join(J, "job.json")).get("brand", "") if os.path.exists(os.path.join(J, "job.json")) else "")["audio"]
+        txt = subprocess.run([kitcfg.ffmpeg(), "-hide_banner", "-i", video, "-vn", "-af", "loudnorm=print_format=json", "-f", "null", "-"], capture_output=True, text=True).stderr
+        m = _json.loads(re.findall(r"\{[^{}]*\"input_i\"[^{}]*\}", txt)[-1])
+        li, tp = float(m["input_i"]), float(m["input_tp"])
+        ok = abs(li - au["lufs"]) <= 1.0 and tp <= au["truePeak"] + 0.3
+        res.append(("PASS" if ok else "FAIL", "audio-out", f"final.mp4 loudness {li:.1f} LUFS (target {au['lufs']}), true peak {tp:.1f} dBTP (ceiling {au['truePeak']})"))
     ec = edit.get("endCard")
     if not ec or "{" in ec["ra"] or not ec["text"]:
         res.append(("FAIL", "compliance", "end card / RA line missing or unfilled"))

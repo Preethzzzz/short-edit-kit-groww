@@ -2,7 +2,8 @@
 name: infographics
 description: Turns JOB/work/visual_plan.md into exact plan.json beats (component props, anchors, sources, sections, arithmetic checks) and prepares on-screen images. Numbers copied character-for-character from the script or facts. Routine work; edit-short step 7, and the owner of FAIL items about on-screen numbers/props.
 tools: Read, Write, Edit, Bash, Glob
-model: sonnet
+model: opus
+effort: high
 ---
 
 `K` = the plugin root path and `JOB` = the job folder, both given in your prompt.

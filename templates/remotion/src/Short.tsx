@@ -79,7 +79,8 @@ const Presenter: React.FC<{p: EditProps; topCues: Cue[]}> = ({p, topCues}) => {
 		const cur = [...p.talk].reverse().find((x) => t >= x.from);
 		framing = cur?.framing === 'MCU' ? p.brand.framing.mcu : 1;
 	}
-	const scale = z * (1 - 0.06 * g);
+	const punch = [...p.punches].reverse().find((x) => t >= x.from)?.scale ?? 1;
+	const scale = z * (1 - 0.06 * g) * punch;
 	const {presenter} = p;
 	return (
 		<AbsoluteFill style={{transform: `translateY(${g * p.brand.layout.presenterDrop}px) scale(${scale * framing})`, transformOrigin: p.layout === 'full' ? '50% 30%' : '50% 45%'}}>
@@ -144,10 +145,21 @@ const Captions: React.FC<{p: EditProps; topCues: Cue[]}> = ({p, topCues}) => {
 	const s = p.brand.captions;
 	const k = eo(frame, f(c.from), f(c.from) + f(0.15));
 	const top = interpolate(g, [0, 1], [L.captionTop, L.captionTopWithCard]);
+	// Word-by-word highlight: the spoken word's slot (starts[] from build_plan) is shown in the accent colour.
+	const words = c.text.split(' ');
+	let active = -1;
+	(c.starts ?? []).forEach((st, i) => {
+		if (t >= st) active = i;
+	});
 	return (
 		<div style={{position: 'absolute', left: L.safe.left, width: L.safe.right - L.safe.left, top, display: 'flex', justifyContent: 'center'}}>
 			<div style={{fontFamily: p.brand.fonts.sans, fontSize: s.size, fontWeight: s.weight, lineHeight: 1.25, color: s.color, background: s.bg, borderRadius: s.radius, padding: '14px 26px', textAlign: 'center', opacity: k, transform: `translateY(${(1 - k) * 8}px)`}}>
-				{c.text}
+				{words.map((w, i) => (
+					<span key={i} style={{color: i === active ? s.activeColor : s.color}}>
+						{w}
+						{i < words.length - 1 ? ' ' : ''}
+					</span>
+				))}
 			</div>
 		</div>
 	);
@@ -225,7 +237,7 @@ export const Short: React.FC<EditProps> = (p) => {
 				<Header p={p} dark={dark} />
 				<OpeningLines p={p} />
 				<EndCard p={p} />
-				{p.voice ? <Audio src={staticFile(p.voice)} /> : null}
+				{p.mix || p.voice ? <Audio src={staticFile((p.mix ?? p.voice) as string)} /> : null}
 			</AbsoluteFill>
 		</BrandCtx.Provider>
 	);

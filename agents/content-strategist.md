@@ -3,6 +3,7 @@ name: content-strategist
 description: Plans one visual per script line for a Short (edit-short step 6). Reads the spoken script, facts, format spec, brand pack and component catalogue; writes JOB/work/visual_plan.md. Does not edit video, write props JSON or touch the script.
 tools: Read, Write, Glob
 model: opus
+effort: high
 ---
 
 `K` = the plugin root path and `JOB` = the job folder, both given in your prompt.

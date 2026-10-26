@@ -41,7 +41,8 @@ Footage, renders and models are never committed (`.gitignore`).
 | `qa-checker` | Sonnet | independent: numbers vs script, captions vs fresh transcript, safe zones, brand, compliance |
 
 ## Layout
-- `scripts/` pipeline (short summaries on stdout): `init_job`, `transcribe` (`--pieces` for retakes), `make_segments`, `extra_words`, `build_audio`, `check_joins`, `align`/`align_core`, `key` (+ `greenness_key`), `reflow`, `build_plan`, `render`, `stills`, `qa_check`, `setup`. `legacy/` = the original per-video builders, kept for reference.
+- Sound: `build_mix.py` + `synth_audio.py` make an original synthesized music bed (no samples, no licences) with whoosh/pop effects, ducked under speech, mixed to the brand loudness target. A brand pack can point `audio.bed.file` at its own licensed track.
+- `scripts/` pipeline (short summaries on stdout): `init_job`, `build_mix`, `synth_audio`, `transcribe` (`--pieces` for retakes), `make_segments`, `extra_words`, `build_audio`, `check_joins`, `align`/`align_core`, `key` (+ `greenness_key`), `reflow`, `build_plan`, `render`, `stills`, `qa_check`, `setup`. `legacy/` = the original per-video builders, kept for reference.
 - `templates/remotion/` generic `Short` composition driven by `edit.json`; component catalogue `components.json`; `test_plan.json` -> `src/sample.json` (setup test).
 - `brands/groww/` swappable brand pack: `brand.json` (palette, tones, themes, fonts, logo placement, layout/safe zones, captions, motion, compliance text, presenter grade, audio targets), `BRAND_GUIDELINES.md`, `logo/`, `source/`. Another brand = another folder with the same keys; select with `SEK_BRAND=<name>` or `"brand"` in `~/.short-edit-kit/config.json`.
 - `formats/<format>/FORMAT.md` + `reference/plan.json` worked examples.

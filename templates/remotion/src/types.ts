@@ -21,14 +21,14 @@ export type Brand = {
 		sourceTop: number;
 	};
 	motion: {cardInMs: number; itemInMs: number; staggerMs: number; fadeOutMs: number; pushInPct: number; sceneCrossfadeSec: number};
-	captions: {bg: string; color: string; size: number; weight: number; radius: number};
-	framing: {mcu: number};
+	captions: {bg: string; color: string; size: number; weight: number; radius: number; activeColor: string};
+	framing: {mcu: number; punch: number};
 	compliance: {openingLines: string[]; openingSeconds: number};
 };
 
 export type Segment = {src0: number; src1: number; out: number; punch?: number};
 export type Cue = {id: string; component: string; from: number; to: number; source?: string | null; props: Record<string, any>};
-export type Caption = {from: number; to: number; text: string};
+export type Caption = {from: number; to: number; text: string; starts?: number[]};
 
 export type EditProps = {
 	fps: number;
@@ -41,6 +41,8 @@ export type EditProps = {
 	header: {tag?: string | null; topic?: string | null};
 	presenter: {src: string; offset: number} | null;
 	voice: string | null;
+	mix: string | null; // voice + bed + effects (scripts/build_mix.py); played instead of voice when set
+	punches: {from: number; scale: number}[]; // cut-style framing changes on the presenter
 	segments: Segment[];
 	sections: {scene: string; from: number}[];
 	talk: {from: number; framing: 'WIDE' | 'MCU'}[];

@@ -1,18 +1,59 @@
 # short-edit-kit-groww
 
-Claude Code plugin that edits raw green-screen footage + a finished script into a branded vertical Short.
-Repo: https://github.com/Preethzzzz/short-edit-kit-groww. The `brands/groww/` pack (logo, brand guidelines) belongs to Groww; swap in your own pack for other brands.
+A Claude Code plugin that turns **raw green-screen footage + a finished script** into an **edited vertical Short** (1080x1920).
 
-## Install (each laptop, once)
+It transcribes the narration, cuts retakes and extra spoken words so the audio matches the script, adds English captions (the spoken word lights up), keys and grades the presenter, builds animated infographics with Remotion, mixes a music bed and effects, and finishes with an independent QA check on numbers, captions, safe zones and loudness.
+
+The brand pack in `brands/groww/` (logo, colours, guidelines) belongs to Groww. Swap in your own pack for other brands.
+
+## What you need (once per laptop)
+
+| Need | How to check | If missing |
+|---|---|---|
+| Mac with Claude Code | `claude --version` | Install Claude Code from https://claude.com/claude-code |
+| Python 3 | `python3 --version` | macOS offers to install developer tools; accept |
+| Node 18 or newer | `node --version` | Install from https://nodejs.org |
+| About 2 GB free disk | | The speech model alone is 1.6 GB |
+
+No admin password and no Homebrew needed.
+
+## Install
+
+Run in Terminal, in this order, once per laptop:
+
 ```bash
 claude plugin marketplace add Preethzzzz/short-edit-kit-groww
 ```
 ```bash
 claude plugin install short-edit-kit-groww@groww-video
 ```
-Then in Claude Code run `/short-edit-kit-groww:setup`. It installs or verifies the tools without admin rights (ffmpeg, a Python venv with faster-whisper, the Whisper large-v3-turbo model, about 1.6 GB, and Remotion) under `~/video-tools`, and ends with a 10-second test render. Needs macOS with `python3` and Node 18+.
 
-## Update (after a new push)
+Then open Claude Code and run:
+
+```
+/short-edit-kit-groww:setup
+```
+
+Setup installs or checks ffmpeg, a Python environment with faster-whisper, the Whisper large-v3-turbo model, and Remotion (all under `~/video-tools`), then renders a 10-second test video. The first run downloads about 1.6 GB and can take several minutes; if it stalls, run it again and it resumes. It ends with `setup PASSED`.
+
+## Edit a Short
+
+In Claude Code, from the folder where you want your jobs saved, say for example:
+
+> Edit this Short. Footage: `/path/to/video.mp4`. Script: `/path/to/script.docx`
+
+Inputs: vertical MP4 or MOV shot on a green screen, and the finished script as DOCX, PDF or text.
+It asks once for the format, channel, RA name and RA date, and header topic. The finished video is `jobs/<name>/out/final.mp4`, with a short report of every cut, every place the audio differs from the script, and anything to check by ear.
+
+| Format | Use for |
+|---|---|
+| `ipo-day-roundup` | 2 to 5 IPOs opening on the same day: hook, concept explainer, one card per company |
+| `data-explainer` | One data finding from a report or study: talk lines plus full-screen data cards |
+
+## Update
+
+When a new version is published:
+
 ```bash
 claude plugin marketplace update groww-video
 ```
@@ -20,33 +61,50 @@ claude plugin marketplace update groww-video
 claude plugin update short-edit-kit-groww@groww-video
 ```
 
-Footage, renders and models are never committed (`.gitignore`).
-
-## Use
-"Edit this Short: footage `<path>`, script `<path>`" -> skill `edit-short` runs the flow and asks once for format, channel, RA name/date and header topic.
+## What is inside
 
 | Skill | Purpose |
 |---|---|
-| `edit-short` | full flow: job, key, transcribe, cuts synced to the script, English captions, visual plan, render, QA |
-| `format-ipo-day-roundup` | several IPOs on one day, card-top layout, sector scenes |
-| `format-data-explainer` | data finding with talk + full-screen cards (mutual-fund reference) |
-| `setup` | ffmpeg, venv + faster-whisper, Whisper large-v3-turbo (curl resume + SHA-256), Remotion; test render |
+| `edit-short` | Full flow: job setup, keying, transcribe, cuts synced to the script, English captions, visual plan, render, QA |
+| `format-ipo-day-roundup` | Rules for the IPO roundup format |
+| `format-data-explainer` | Rules for the data explainer format |
+| `setup` | Install or verify the tools and run the test render |
 
-| Agent | Model | Job |
-|---|---|---|
-| `content-strategist` | Opus | one visual per script line -> `visual_plan.md` |
-| `infographics` | Sonnet | exact props, anchors, sources, arithmetic checks -> `plan.json` |
-| `motion-graphics` | Sonnet (Opus for new designs) | job-local components/scenes, timing and pace pass |
-| `editor` | Sonnet | takes, retakes, extra words, segments, voice, alignment, join checks, English captions, render |
-| `qa-checker` | Sonnet | independent: numbers vs script, captions vs fresh transcript, safe zones, brand, compliance |
+| Agent | Job |
+|---|---|
+| `content-strategist` | One visual per script line |
+| `infographics` | Exact card data, anchors, sources and arithmetic checks |
+| `motion-graphics` | Timing and pace pass; new designs when the library lacks one |
+| `editor` | Takes, retakes, extra words, voice track, alignment, English captions |
+| `qa-checker` | Independent check of numbers, captions, safe zones, brand, loudness |
 
-## Layout
-- Sound: `build_mix.py` + `synth_audio.py` make an original synthesized music bed (no samples, no licences) with whoosh/pop effects, ducked under speech, mixed to the brand loudness target. A brand pack can point `audio.bed.file` at its own licensed track.
-- `scripts/` pipeline (short summaries on stdout): `init_job`, `build_mix`, `synth_audio`, `transcribe` (`--pieces` for retakes), `make_segments`, `extra_words`, `build_audio`, `check_joins`, `align`/`align_core`, `key` (+ `greenness_key`), `reflow`, `build_plan`, `render`, `stills`, `qa_check`, `setup`. `legacy/` = the original per-video builders, kept for reference.
-- `templates/remotion/` generic `Short` composition driven by `edit.json`; component catalogue `components.json`; `test_plan.json` -> `src/sample.json` (setup test).
-- `brands/groww/` swappable brand pack: `brand.json` (palette, tones, themes, fonts, logo placement, layout/safe zones, captions, motion, compliance text, presenter grade, audio targets), `BRAND_GUIDELINES.md`, `logo/`, `source/`. Another brand = another folder with the same keys; select with `SEK_BRAND=<name>` or `"brand"` in `~/.short-edit-kit/config.json`.
-- `formats/<format>/FORMAT.md` + `reference/plan.json` worked examples.
+## How it works
 
-## Plan -> video
-`plan.json` (script phrases) --`build_plan.py`--> `edit.json` (seconds + brand values) --`render.py`--> `out/final.mp4`.
-Anchors: any `at` / `...At` / `until` is a verbatim script phrase, `{"phrase", "after", "edge", "offset"}`, `"start"`, `"end"` or seconds.
+- `plan.json` (cards and captions tied to script phrases) -> `build_plan.py` -> `edit.json` (seconds and brand values) -> `render.py` -> `out/final.mp4`.
+- Sound: an original synthesized music bed (ducked under speech) plus whoosh and pop effects, mixed to the brand loudness target. A brand pack can supply its own licensed track.
+- Pacing: automatic punch-in cuts every 3 to 4.5 seconds; QA fails any stretch over 6 seconds with no change.
+- Anchors in a plan: a verbatim script phrase, `{"phrase", "after", "edge", "offset"}`, `"start"`, `"end"` or seconds.
+- Turn features off per video with `"sound": false` or `"autoPunch": false` in the plan.
+
+## Brand packs
+
+One folder per brand under `brands/`. The workflow reads every brand value from there (palette, tones, fonts, logo, safe zones, captions, disclaimers, grade, audio, loudness); nothing brand-specific is hard-coded. See `brands/README.md`. Select a pack with `SEK_BRAND=<name>` or `"brand"` in `~/.short-edit-kit/config.json`.
+
+## Folders
+
+- `scripts/` pipeline steps; each prints a short summary. `legacy/` holds the original per-video builders.
+- `templates/remotion/` the generic video template and the component catalogue (`components.json`).
+- `brands/groww/` brand pack. `formats/` format specs with worked example plans.
+
+## Troubleshooting
+
+| Problem | Fix |
+|---|---|
+| `marketplace add` says repository not found | Check the spelling `Preethzzzz` (three z's) and your internet connection |
+| Setup shows `FAIL` on a line | That line names the missing tool; install it and run setup again |
+| Model download stalls | Run `/short-edit-kit-groww:setup` again; it resumes |
+| `node` not found or too old | Install Node 18+ from https://nodejs.org |
+| Music too loud or effects annoying | Change `levelDb`, `popDb`, `whooshDb` in `brands/groww/brand.json` |
+| QA fails a number | The number is not in the script or `facts.txt`; correct the plan or the script |
+
+Footage, renders and models are never committed (`.gitignore`).

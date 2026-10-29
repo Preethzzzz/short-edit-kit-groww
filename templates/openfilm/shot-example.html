@@ -1,0 +1,13 @@
+<!doctype html>
+<!-- One shot = one page. Copy this file per shot, put the script's own words and images in it, and cut it into
+     film.html's graphics track with <iframe src="name.html#t=0,DURATION" at="FILM_SECOND">. data-from = page seconds. -->
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="shared.css"></head>
+<body>
+  <div class="tag">Topic tag</div>
+  <div class="label">Label</div>
+  <div class="name">Headline from the script</div>
+  <div class="card"><div class="chart"><img src="assets/chart.png" alt="Chart from the script"></div></div>
+  <div class="source">Source: as written in the script</div>
+  <div class="invalid" data-from="3">Number from the script</div>
+  <script type="module">import { shot } from "./shot.js"; shot(6);</script>
+</body></html>

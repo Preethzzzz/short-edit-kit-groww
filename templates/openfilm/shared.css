@@ -1,0 +1,15 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800&display=block");
+/* Studio draws subtitles at ~72% of the height (y 1300-1460): keep that band free of text. */
+/* Groww brand pack (brand.json palette): ground #F8F8F8, text #0B0B0B / #44475B, blue = neutral labels, red = invalid level, yellow = note */
+:root { --ground: #F8F8F8; --ink: #0B0B0B; --body: #44475B; --blue: #5367FC; --red: #FF5757; --yellow: #F7CC69; }
+html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: transparent; }
+body { font-family: "Inter Tight", sans-serif; color: var(--ink); position: relative; }
+.tag { position: absolute; left: 56px; top: 78px; padding: 12px 24px; border-radius: 40px; background: #E8EBFF; color: var(--blue); font: 700 32px "Inter Tight"; }
+.label { position: absolute; left: 56px; top: 380px; color: var(--blue); font: 700 36px "Inter Tight"; letter-spacing: 2px; text-transform: uppercase; }
+.name { position: absolute; left: 56px; right: 56px; top: 428px; font: 800 60px/1.1 "Inter Tight"; }
+.card { position: absolute; left: 32px; right: 32px; top: 520px; height: 660px; background: #fff; border-radius: 28px; box-shadow: 0 6px 30px rgba(0,0,0,.08); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.chart { position: relative; max-width: 100%; max-height: 100%; }
+.chart img { display: block; max-width: 1016px; max-height: 660px; }
+.source { position: absolute; left: 56px; right: 56px; top: 1192px; font: 500 26px "Inter Tight"; color: var(--body); }
+.invalid { position: absolute; right: 56px; top: 368px; padding: 10px 24px; border-radius: 14px; background: var(--red); color: #fff; font: 800 36px "Inter Tight"; display: none; }
+.note { position: absolute; left: 56px; top: 252px; max-width: 620px; font: 600 24px "Inter Tight"; color: var(--ink); background: var(--yellow); border-radius: 12px; padding: 10px 18px; }

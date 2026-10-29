@@ -4,37 +4,61 @@ A Claude Code plugin that turns **raw green-screen footage + a finished script**
 
 It transcribes the narration, cuts retakes and extra spoken words so the audio matches the script, adds English captions (the spoken word lights up), keys and grades the presenter, builds animated infographics with Remotion, mixes a music bed and effects, and finishes with an independent QA check on numbers, captions, safe zones and loudness.
 
-The brand pack in `brands/groww/` (logo, colours, guidelines) belongs to Groww. Swap in your own pack for other brands.
+The brand pack in `brands/groww/` (logo, colours, guidelines, disclaimer and RA lines) belongs to Groww and is included for Groww's own team; the Groww name and logo are Groww's trademarks. Swap in your own pack for other brands (`brands/README.md`).
 
-## What you need (once per laptop)
+## Quick start
+
+```bash
+npx -y short-edit-kit-groww@latest
+```
+
+Run alone, it prints the manual (the whole workflow). Then, once per laptop:
+
+```bash
+npx -y short-edit-kit-groww@latest setup
+```
+```bash
+npx -y short-edit-kit-groww@latest install-claude
+```
+
+`setup` installs or verifies ffmpeg, a Python venv with faster-whisper, the Whisper large-v3-turbo model (curl with resume, SHA-256 checked against Hugging Face) and Remotion, all under `~/video-tools` (`--tools-dir DIR` for another place), then renders a 10-second test video and ends with `setup PASSED`. Run it again any time: it only installs what is missing. `install-claude` adds the skills and agents below to Claude Code; restart Claude Code afterwards.
+
+`@latest` always runs the newest published version, so fixes arrive without reinstalling.
+
+## Requirements
 
 | Need | How to check | If missing |
 |---|---|---|
-| Mac with Claude Code | `claude --version` | Install Claude Code from https://claude.com/claude-code |
-| Python 3 | `python3 --version` | macOS offers to install developer tools; accept |
-| Node 18 or newer | `node --version` | Install from https://nodejs.org |
-| About 2 GB free disk | | The speech model alone is 1.6 GB |
+| Python 3.9+ | `python3 --version` | macOS offers to install developer tools; accept (or python.org) |
+| Node 18+ | `node --version` | Install from https://nodejs.org |
+| About 2.5 GB free disk | | The speech model alone is 1.6 GB; Remotion and the venv about 0.8 GB |
+| Claude Code (for the agent workflow) | `claude --version` | https://claude.com/claude-code |
 
-No admin password and no Homebrew needed.
+No admin password and no Homebrew needed. macOS and Linux.
 
-## Install
+## Commands
 
-Run in Terminal, in this order, once per laptop:
+Every command prints a one-line summary; `npx -y short-edit-kit-groww@latest <command> --help` shows its arguments.
 
-```bash
-claude plugin marketplace add Preethzzzz/short-edit-kit-groww
-```
-```bash
-claude plugin install short-edit-kit-groww@groww-video
-```
+| Command | Does |
+|---|---|
+| `setup`, `install-claude`, `doctor` | install and verify; register with Claude Code; show the config |
+| `init` | job folder from footage + script (DOCX, PDF or text) |
+| `key` | green-screen key (`--greenness`, `--unmix` for yellow-green screens and long hair) or `--plain` grade |
+| `transcribe` | Whisper word timings |
+| `extra-words`, `cuts` | spoken words not in the script; kept segments |
+| `audio`, `joins` | voice track; re-transcribe every join |
+| `align`, `plan`, `captions` | script on the timeline; plan.json -> edit.json; English captions as SRT/VTT |
+| `mix`, `render`, `stills`, `qa` | sound, Remotion render, contact sheet, deterministic QA |
+| `openfilm` | optional: export the job as an OpenFilm project instead of the Remotion render |
 
-Then open Claude Code and run:
+## Remotion license
 
-```
-/short-edit-kit-groww:setup
-```
+Rendering uses [Remotion](https://www.remotion.dev). Remotion is free for individuals and companies with up to 3 employees; larger companies need a paid company license. See https://www.remotion.dev/license before using this kit at work.
 
-Setup installs or checks ffmpeg, a Python environment with faster-whisper, the Whisper large-v3-turbo model, and Remotion (all under `~/video-tools`), then renders a 10-second test video. The first run downloads about 1.6 GB and can take several minutes; if it stalls, run it again and it resumes. It ends with `setup PASSED`.
+## OpenFilm output (optional)
+
+`openfilm JOB` writes `JOB/film/`: `film.html` with the logo, the presenter cut by the job's segments and a plain ground, the presenter baked onto the brand ground as H.264 with normalised audio, English captions as WebVTT with word timings, and shot templates. Open it with `npx -y openfilm@latest open JOB/film` and write one page per shot (`npx -y openfilm@latest` prints OpenFilm's manual).
 
 ## Edit a Short
 
@@ -52,14 +76,7 @@ It asks once for the format, channel, RA name and RA date, and header topic. The
 
 ## Update
 
-When a new version is published:
-
-```bash
-claude plugin marketplace update groww-video
-```
-```bash
-claude plugin update short-edit-kit-groww@groww-video
-```
+The command line updates itself: `npx -y short-edit-kit-groww@latest` always fetches the newest version. To update the Claude Code skills and agents, run `install-claude` again (it updates an existing install), then restart Claude Code.
 
 ## What is inside
 
@@ -100,9 +117,9 @@ One folder per brand under `brands/`. The workflow reads every brand value from 
 
 | Problem | Fix |
 |---|---|
-| `marketplace add` says repository not found | Check the spelling `Preethzzzz` (three z's) and your internet connection |
+| `install-claude` says repository not found | Check the spelling `Preethzzzz` (three z's) and your internet connection |
 | Setup shows `FAIL` on a line | That line names the missing tool; install it and run setup again |
-| Model download stalls | Run `/short-edit-kit-groww:setup` again; it resumes |
+| Model download stalls | Run `setup` again; it resumes |
 | `node` not found or too old | Install Node 18+ from https://nodejs.org |
 | Music too loud or effects annoying | Change `levelDb`, `popDb`, `whooshDb` in `brands/groww/brand.json` |
 | QA fails a number | The number is not in the script or `facts.txt`; correct the plan or the script |

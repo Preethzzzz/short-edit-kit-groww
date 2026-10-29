@@ -4,7 +4,9 @@ Usage:
   key.py sample RAW [--t 3]                     # screen colour + which keyer to use
   key.py test RAW OUT.png [--t 3] (--color 0x95D623 --sim 0.11 --blend 0.05 | --greenness 6 16 GARBAGE_Y)
                                                 # 3 strengths side by side on dark, + hole % in the subject area
-  key.py run RAW OUT.webm (--color .. --sim .. --blend .. | --greenness LO HI GARBAGE_Y) [--trim A-B] [--no-grade]
+  key.py run RAW OUT.webm (--color .. --sim .. --blend .. | --greenness LO HI GARBAGE_Y [--unmix]) [--trim A-B] [--no-grade]
+                                                # --unmix: brightness-relative greenness + screen un-mixing for
+                                                # yellow-green dull screens and long hair (olive fringe); try lo 2 hi 18
   key.py run RAW OUT.mp4 --plain [--trim A-B] [--clean X,Y,W,H ...]
                                                 # no green screen: grade only, opaque 1080x1920 H.264;
                                                 # --clean paints out wall marks (stickers, switches) in
@@ -120,6 +122,7 @@ def main():
     ap.add_argument("--sim", type=float, default=0.11)
     ap.add_argument("--blend", type=float, default=0.05)
     ap.add_argument("--greenness", nargs=3, type=float, metavar=("LO", "HI", "GARBAGE_Y"))
+    ap.add_argument("--unmix", action="store_true", help="--greenness with screen un-mixing (unmix_key.py)")
     ap.add_argument("--trim")
     ap.add_argument("--no-grade", action="store_true")
     ap.add_argument("--brand", default="")
@@ -146,7 +149,7 @@ def main():
         tiles, notes = [], []
         if a.greenness:
             sys.path.insert(0, HERE)
-            from greenness_key import key as gkey
+            gkey = __import__("unmix_key" if a.unmix else "greenness_key").key
 
             lo, hi, gy = a.greenness
             rgb = frame(a.raw, a.t)
@@ -195,7 +198,7 @@ def main():
         h, w, _ = frame(a.raw, 1.0).shape
         fps = fps_of(a.raw)
         dec = subprocess.Popen([FF, "-hide_banner", "-loglevel", "error", *trim, "-i", a.raw, "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], stdout=subprocess.PIPE)
-        keyer = subprocess.Popen([sys.executable, os.path.join(HERE, "greenness_key.py"), str(w), str(h), str(lo), str(hi), str(int(gy))], stdin=dec.stdout, stdout=subprocess.PIPE)
+        keyer = subprocess.Popen([sys.executable, os.path.join(HERE, "unmix_key.py" if a.unmix else "greenness_key.py"), str(w), str(h), str(lo), str(hi), str(int(gy))], stdin=dec.stdout, stdout=subprocess.PIPE)
         subprocess.run([FF, "-hide_banner", "-loglevel", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgba", "-s", f"{w}x{h}", "-r", f"{fps}", "-i", "-",
                         "-filter_complex", "[0:v]" + post, *enc], stdin=keyer.stdout, check=True)
     else:

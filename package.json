@@ -1,0 +1,37 @@
+{
+  "name": "short-edit-kit-groww",
+  "version": "0.2.0",
+  "description": "Edit raw presenter footage plus a finished script into a branded vertical Short: Whisper transcription, script-synced cuts, English captions, green-screen key, Remotion or OpenFilm output, QA. Claude Code skills and agents included. Ships with the Groww brand pack.",
+  "license": "UNLICENSED",
+  "author": "Preethzzzz (https://github.com/Preethzzzz)",
+  "homepage": "https://github.com/Preethzzzz/short-edit-kit-groww#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Preethzzzz/short-edit-kit-groww.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Preethzzzz/short-edit-kit-groww/issues"
+  },
+  "keywords": ["video", "shorts", "remotion", "whisper", "green-screen", "claude-code", "openfilm"],
+  "type": "module",
+  "bin": {
+    "short-edit-kit-groww": "bin/short-edit-kit.mjs",
+    "short-edit-kit": "bin/short-edit-kit.mjs"
+  },
+  "files": [
+    "bin/",
+    "scripts/",
+    "!scripts/__pycache__/",
+    "skills/",
+    "agents/",
+    "brands/",
+    "formats/",
+    "templates/",
+    ".claude-plugin/",
+    "MANUAL.md",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -31,7 +31,7 @@ const STEPS = {
   render: ['render.py', 'Remotion render to out/final.mp4 (--test: 10 s sample)'],
   stills: ['stills.py', 'contact sheet of a render'],
   qa: ['qa_check.py', 'deterministic QA (numbers, captions, safe zones, loudness)'],
-  openfilm: ['openfilm_export.py', 'optional: export the job as an OpenFilm project'],
+  openfilm: ['openfilm_export.py', 'only when asked: OpenFilm project (default output stays out/final.mp4)'],
 };
 
 const say = (line) => console.log(line);

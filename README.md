@@ -50,15 +50,15 @@ Every command prints a one-line summary; `npx -y short-edit-kit-groww@latest <co
 | `audio`, `joins` | voice track; re-transcribe every join |
 | `align`, `plan`, `captions` | script on the timeline; plan.json -> edit.json; English captions as SRT/VTT |
 | `mix`, `render`, `stills`, `qa` | sound, Remotion render, contact sheet, deterministic QA |
-| `openfilm` | optional: export the job as an OpenFilm project instead of the Remotion render |
+| `openfilm` | only on request: also export the job as an OpenFilm project (the default output stays out/final.mp4) |
 
 ## Remotion license
 
 Rendering uses [Remotion](https://www.remotion.dev). Remotion is free for individuals and companies with up to 3 employees; larger companies need a paid company license. See https://www.remotion.dev/license before using this kit at work.
 
-## OpenFilm output (optional)
+## OpenFilm output (only on request)
 
-`openfilm JOB` writes `JOB/film/`: `film.html` with the logo, the presenter cut by the job's segments and a plain ground, the presenter baked onto the brand ground as H.264 with normalised audio, English captions as WebVTT with word timings, and shot templates. Open it with `npx -y openfilm@latest open JOB/film` and write one page per shot (`npx -y openfilm@latest` prints OpenFilm's manual).
+The normal output is the Remotion render, `jobs/<name>/out/final.mp4`. The OpenFilm export is made only when you ask for OpenFilm. `openfilm JOB` writes `JOB/film/`: `film.html` with the logo, the presenter cut by the job's segments and a plain ground, the presenter baked onto the brand ground as H.264 with normalised audio, English captions as WebVTT with word timings, and shot templates. Open it with `npx -y openfilm@latest open JOB/film` and write one page per shot (`npx -y openfilm@latest` prints OpenFilm's manual).
 
 ## Edit a Short
 

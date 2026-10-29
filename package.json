@@ -1,6 +1,6 @@
 {
   "name": "short-edit-kit-groww",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Edit raw presenter footage plus a finished script into a branded vertical Short: Whisper transcription, script-synced cuts, English captions, green-screen key, Remotion or OpenFilm output, QA. Claude Code skills and agents included. Ships with the Groww brand pack.",
   "license": "UNLICENSED",
   "author": "Preethzzzz (https://github.com/Preethzzzz)",

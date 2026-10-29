@@ -3,10 +3,10 @@
 Usage: python3 setup.py [--tools-dir ~/video-tools] [--skip-render] [--brand groww]
 
 No admin rights or Homebrew needed. Reuses existing installs under the tools dir:
-  ffmpeg    TOOLS/bin/ffmpeg (else any ffmpeg on PATH, else the static build shipped with imageio-ffmpeg)
+  ffmpeg    TOOLS/bin/ffmpeg (else the static build pinned in the venv by imageio-ffmpeg, else ffmpeg on PATH)
   python    TOOLS/venv with faster-whisper, python-docx, pillow, numpy, av, pypdf
   model     TOOLS/models/large-v3-turbo (curl with resume + size and SHA-256 check against Hugging Face)
-  remotion  TOOLS/remotion (npm project with remotion + @remotion/cli)
+  remotion  TOOLS/remotion (npm project with remotion + @remotion/cli) + Chrome Headless Shell (curl with resume)
 Writes ~/.short-edit-kit/config.json. One line per check; exit 1 on any failure.
 """
 import argparse
@@ -68,28 +68,58 @@ def check_python(tools):
     return py
 
 
+def audio_chain_ok(ff):
+    """The mix's last pass on a 1 s plain stereo WAV (written like build_mix.py writes it): two-pass loudnorm ->
+    48 kHz AAC. Some PATH builds (ffmpeg-static 6.0) cannot pick a channel layout there and fail."""
+    import math
+    import struct
+    import tempfile
+    import wave
+    with tempfile.TemporaryDirectory() as d:
+        wav, m4a = os.path.join(d, "t.wav"), os.path.join(d, "t.m4a")
+        with wave.open(wav, "wb") as w:
+            w.setnchannels(2)
+            w.setsampwidth(2)
+            w.setframerate(48000)
+            tone = [int(3000 * math.sin(2 * math.pi * 440 * i / 48000)) for i in range(48000)]
+            w.writeframes(struct.pack(f"<{2 * len(tone)}h", *(v for x in tone for v in (x, x))))
+        r = run([ff, "-hide_banner", "-loglevel", "error", "-y", "-i", wav, "-af",
+                 "loudnorm=I=-14:TP=-1.5:LRA=11:measured_I=-30:measured_TP=-15:measured_LRA=4:measured_thresh=-40:offset=0.5:linear=true,aresample=48000",
+                 "-c:a", "aac", "-b:a", "192k", m4a])
+        return r.returncode == 0
+
+
 def check_ffmpeg(tools, py):
+    """Order: TOOLS/bin/ffmpeg, the static build pinned in the venv (imageio-ffmpeg), any ffmpeg on PATH.
+    The first with libx264, libvpx-vp9, aac and a working audio chain is linked to TOOLS/bin/ffmpeg."""
     target = os.path.join(tools, "bin", "ffmpeg")
-    cands = [target, shutil.which("ffmpeg") or ""]
-    ff = next((c for c in cands if c and os.path.exists(c)), None)
-    if not ff and py:
+    cands = [target]
+    if py:
         r = run([py, "-I", "-c", "import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())"])
         if r.returncode == 0:
+            cands.append(r.stdout.strip())
+    cands.append(shutil.which("ffmpeg") or "")
+    rejected = []
+    for ff in (c for c in cands if c and os.path.exists(c)):
+        enc = run([ff, "-hide_banner", "-encoders"]).stdout
+        need = [e for e in ("libx264", "libvpx-vp9", "aac") if e not in enc]
+        if need or not audio_chain_ok(ff):
+            rejected.append(f"{ff} ({'lacks ' + ', '.join(need) if need else 'loudnorm/aac chain fails'})")
+            continue
+        if ff != target:
             os.makedirs(os.path.dirname(target), exist_ok=True)
-            os.symlink(r.stdout.strip(), target)
-            ff = target
-            say("INSTALLED", "ffmpeg", f"linked {r.stdout.strip()}")
-    if not ff:
-        say("FAIL", "ffmpeg", "not found; install imageio-ffmpeg into the venv and rerun")
-        return None
-    enc = run([ff, "-hide_banner", "-encoders"]).stdout
-    need = [e for e in ("libx264", "libvpx-vp9", "aac") if e not in enc]
-    ver = run([ff, "-version"]).stdout.split("\n")[0].split(" ")[2]
-    if need:
-        say("FAIL", "ffmpeg", f"{ff} lacks encoders {need}")
-    else:
-        say("OK", "ffmpeg", f"{ff} ({ver}; libx264, libvpx-vp9, aac)")
-    return ff
+            if os.path.lexists(target):
+                if not os.path.islink(target):  # a real binary someone put there: leave it, say so
+                    say("FAIL", "ffmpeg", f"{target} fails the checks; move it away and rerun")
+                    return None
+                os.unlink(target)
+            os.symlink(ff, target)
+            say("INSTALLED", "ffmpeg", f"linked {ff}")
+        ver = run([target, "-version"]).stdout.split("\n")[0].split(" ")[2]
+        say("OK", "ffmpeg", f"{target} ({ver}; libx264, libvpx-vp9, aac, loudnorm)")
+        return target
+    say("FAIL", "ffmpeg", "no usable ffmpeg" + (f"; rejected: {'; '.join(rejected)}" if rejected else "; install imageio-ffmpeg into the venv and rerun"))
+    return None
 
 
 def sha256(path):
@@ -162,6 +192,62 @@ def check_remotion(tools):
     return d
 
 
+BROWSER_JS = r"""
+const path = require('path');
+const d = path.dirname(require.resolve('@remotion/renderer/package.json')) + '/dist/browser/';
+const f = require(d + 'BrowserFetcher.js'), u = require(d + 'get-chrome-download-url.js');
+const m = 'headless-shell', p = f.getPlatform();
+console.log(JSON.stringify({ platform: p, url: u.getChromeDownloadUrl({ platform: p, version: null, chromeMode: m }),
+  want: f.getExpectedVersion({ version: null, chromeMode: m, platform: p }), have: f.readVersionFile(m), ...f.getRevisionInfo(m) }));
+"""
+
+
+def check_browser(rem):
+    """Chrome Headless Shell for Remotion, fetched with curl resume (Remotion's own downloader cannot resume and
+    stalls on slow networks), unpacked where Remotion looks for it, with its VERSION marker."""
+    r = run(["node", "-e", BROWSER_JS], cwd=rem)
+    if r.returncode:
+        say("FAIL", "browser", f"could not read Remotion's browser info: {r.stderr.strip()[-200:]}")
+        return None
+    b = json.loads(r.stdout)
+    exe, folder, plat = b["executablePath"], b["folderPath"], b["platform"]
+    if b["have"] == b["want"] and os.path.exists(exe):
+        say("OK", "browser", f"Chrome Headless Shell {b['want']}")
+        return exe
+    downloads = os.path.dirname(folder)
+    os.makedirs(downloads, exist_ok=True)
+    part = os.path.join(downloads, "headless-shell.zip.part")
+    for _ in range(30):
+        c = run(["curl", "-L", "-C", "-", "--retry", "5", "--retry-delay", "3", "--speed-limit", "20000", "--speed-time", "30",
+                 "-sS", "-o", part, b["url"]])
+        if c.returncode == 0:
+            break
+    import zipfile
+    if not zipfile.is_zipfile(part):
+        say("FAIL", "browser", f"download incomplete ({b['url']}); run setup again, it resumes")
+        return None
+    shutil.rmtree(folder, ignore_errors=True)
+    x = run(["ditto", "-x", "-k", part, folder] if sys.platform == "darwin" else ["unzip", "-q", part, "-d", folder])
+    if x.returncode:
+        say("FAIL", "browser", f"unpack failed: {x.stderr.strip()[-200:]}")
+        return None
+    for sub in ("chrome-linux", "chrome-headless-shell-linux64"):  # Linux archives: Remotion's own renames
+        src = os.path.join(folder, sub)
+        if os.path.exists(os.path.join(src, "chrome")):
+            os.rename(os.path.join(src, "chrome"), os.path.join(src, "chrome-headless-shell"))
+        dst = os.path.join(folder, f"chrome-headless-shell-{plat}")
+        if os.path.exists(src) and src != dst:
+            os.rename(src, dst)
+    if not os.path.exists(exe):
+        say("FAIL", "browser", f"{exe} missing after unpack")
+        return None
+    os.chmod(exe, 0o755)
+    open(os.path.join(downloads, "VERSION"), "w").write(b["want"])
+    os.remove(part)
+    say("INSTALLED", "browser", f"Chrome Headless Shell {b['want']}")
+    return exe
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--tools-dir", default=os.path.expanduser("~/video-tools"))
@@ -173,6 +259,8 @@ def main():
     ff = check_ffmpeg(tools, py)
     model = check_model(tools)
     rem = check_remotion(tools)
+    if rem and not check_browser(rem):
+        rem = None
     brand_ok = os.path.exists(os.path.join(PLUGIN_ROOT, "brands", a.brand, "brand.json"))
     say("OK" if brand_ok else "FAIL", "brand", os.path.join(PLUGIN_ROOT, "brands", a.brand))
     if fails:

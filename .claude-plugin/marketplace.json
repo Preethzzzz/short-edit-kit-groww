@@ -12,7 +12,7 @@
       "name": "short-edit-kit-groww",
       "source": "./",
       "description": "Edit green-screen footage + script into a branded vertical Short (Groww brand pack).",
-      "version": "0.2.0"
+      "version": "0.2.1"
     }
   ]
 }

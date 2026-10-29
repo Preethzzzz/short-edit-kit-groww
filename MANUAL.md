@@ -36,7 +36,9 @@ Run in the project folder; JOB = jobs/<slug>. Every command prints a one-line su
 
 `plan.json` holds the English captions (phrase by phrase, timed to the Hinglish span they translate) and the visual beats, anchored to script phrases, not seconds. Schema: templates/remotion/components.json; worked examples: formats/*/reference/plan.json.
 
-## OpenFilm instead of Remotion (optional)
+## OpenFilm (only when asked)
+
+The output is always the Remotion render, JOB/out/final.mp4. Make an OpenFilm project only when the person explicitly asks for OpenFilm:
 
     npx -y short-edit-kit-groww@latest openfilm JOB      # JOB/film: film.html, presenter cut by the segments, English VTT, shot templates
     npx -y openfilm@latest open JOB/film                 # then write one page per shot; `npx -y openfilm@latest` is its manual

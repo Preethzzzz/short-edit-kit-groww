@@ -35,7 +35,7 @@ Sector scenes: `factory` (manufacturing), `gears` (industrial, power transmissio
 - Retakes: full-clip Whisper merges repeated takes; re-transcribe suspicious stretches with `transcribe.py --pieces`. Keep the last complete take.
 - Extra words: `extra_words.py` against the script as written; cut genuine extras (fillers, lead-ins such as "No. 1 is" when the script does not have them) only after `check_joins.py` reads clean.
 - Pauses over 0.40 s trimmed to 0.20 s (brand audio values). Alternate 1.00 / 1.06 framing per segment hides jump cuts (automatic in card-top layout).
-- Green screen: `key.py sample` per shoot; `key.py test` 3 strengths on dark, face mask with no holes, then `key.py run`. The 4-IPO shoot used chromakey 0x95D623:0.11:0.05.
+- Green screen: `key.py sample` per shoot; `key.py test` 3 strengths on dark, face mask with no holes, then `key.py run`. The 4-IPO shoot used chromakey 0x95D623:0.11:0.05. No green screen (plain wall): `key.py run --plain`, layout `full` (talk stretches + full-screen cards); the Jio listing Short of 28 Oct 2026 was made this way.
 - Captions: English, phrase by phrase, timed to the Hinglish phrase (see `reference/plan.json`).
 
 ## Checks before handover

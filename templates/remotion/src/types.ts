@@ -49,5 +49,5 @@ export type EditProps = {
 	cues: Cue[];
 	captions: Caption[];
 	zooms: {from: number; to: number; scale: number}[];
-	endCard: {from: number; text: string; ra: string} | null;
+	endCard: {from: number; text: string; ra: string; position?: 'top' | 'bottom'; raBox?: string[]} | null;
 };

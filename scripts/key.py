@@ -5,6 +5,13 @@ Usage:
   key.py test RAW OUT.png [--t 3] (--color 0x95D623 --sim 0.11 --blend 0.05 | --greenness 6 16 GARBAGE_Y)
                                                 # 3 strengths side by side on dark, + hole % in the subject area
   key.py run RAW OUT.webm (--color .. --sim .. --blend .. | --greenness LO HI GARBAGE_Y) [--trim A-B] [--no-grade]
+  key.py run RAW OUT.mp4 --plain [--trim A-B] [--clean X,Y,W,H ...]
+                                                # no green screen: grade only, opaque 1080x1920 H.264;
+                                                # --clean paints out wall marks (stickers, switches) in
+                                                # raw-pixel boxes with a feathered plate of the fitted wall
+                                                # gradient (static camera + plain wall only); use it for
+                                                # anything near the logo (brand: logo clear zone)
+                                                # (use layout "full"; card-top needs a keyed presenter)
 
 The grade (brand presenterGrade) is applied to the keyed layer only. --trim A-B keeps raw A..B and
 writes OUT.json {"offset": A} so segment times stay in raw-clip seconds.
@@ -75,6 +82,34 @@ def on_dark(rgba):
     return (rgba[..., :3] * a + np.array([32, 32, 32]) * (1 - a)).astype(np.uint8)
 
 
+def wall_plate(raw, boxes, out_png, t=1.0, ring=60, feather=24):
+    """Full-frame RGBA plate: inside each box, the wall's smooth gradient (quadratic fit per channel on a
+    ring of wall around the box), feathered alpha at the edges, transparent elsewhere."""
+    rgb = frame(raw, t).astype(float)
+    hh, ww, _ = rgb.shape
+    plate = np.zeros((hh, ww, 4))
+    for x, y, w, h in boxes:
+        x0, y0, x1, y1 = max(0, x - ring), max(0, y - ring), min(ww, x + w + ring), min(hh, y + h + ring)
+        yy, xx = np.mgrid[y0:y1, x0:x1]
+        inside = (xx >= x) & (xx < x + w) & (yy >= y) & (yy < y + h)
+        A = np.stack([np.ones_like(xx), xx, yy, xx * xx, yy * yy, xx * yy], -1).reshape(-1, 6).astype(float)
+        A /= np.array([1, ww, hh, ww * ww, hh * hh, ww * hh])
+        fit = np.empty((y1 - y0, x1 - x0, 3))
+        for ch in range(3):
+            v = rgb[y0:y1, x0:x1, ch].reshape(-1)
+            coef, *_ = np.linalg.lstsq(A[~inside.reshape(-1)], v[~inside.reshape(-1)], rcond=None)
+            fit[..., ch] = (A @ coef).reshape(fit.shape[:2])
+        # alpha: 1 inside the box, falling to 0 over `feather` px outside it
+        dx = np.maximum(np.maximum(x - xx, xx - (x + w - 1)), 0)
+        dy = np.maximum(np.maximum(y - yy, yy - (y + h - 1)), 0)
+        alpha = np.clip(1 - np.hypot(dx, dy) / feather, 0, 1)
+        region = plate[y0:y1, x0:x1]
+        keep = alpha > region[..., 3]
+        region[keep, :3] = fit[keep]
+        region[keep, 3] = alpha[keep]
+    Image.fromarray(np.clip(np.dstack([plate[..., :3], plate[..., 3:] * 255]), 0, 255).astype(np.uint8), "RGBA").save(out_png)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("mode", choices=["sample", "test", "run"])
@@ -88,6 +123,8 @@ def main():
     ap.add_argument("--trim")
     ap.add_argument("--no-grade", action="store_true")
     ap.add_argument("--brand", default="")
+    ap.add_argument("--plain", action="store_true", help="footage without a green screen: grade + scale only, no key")
+    ap.add_argument("--clean", action="append", default=[], metavar="X,Y,W,H", help="--plain: raw-pixel box to paint out with the fitted wall (repeatable)")
     a = ap.parse_args()
 
     if a.mode == "sample":
@@ -100,7 +137,8 @@ def main():
         med = np.median(g, axis=0).astype(int)
         gn = g[:, 1] - np.maximum(g[:, 0], g[:, 2])
         p10, p50, p90 = np.percentile(gn, [10, 50, 90])
-        rec = "chromakey" if p50 >= 60 and (p90 - p10) < 50 else "greenness (dull/uneven screen)"
+        rec = ("chromakey" if p50 >= 60 and (p90 - p10) < 50 else "greenness (dull/uneven screen)") if p50 >= 15 \
+            else "--plain (no green screen in this shot: nothing to key; layout 'full')"
         print(f"{w}x{h} frame, screen colour 0x{med[0]:02X}{med[1]:02X}{med[2]:02X}, greenness p10/p50/p90 {p10:.0f}/{p50:.0f}/{p90:.0f} -> use {rec}")
         return
 
@@ -133,6 +171,21 @@ def main():
         t0, t1 = a.trim.split("-")
         trim = ["-ss", t0, "-to", t1]
         kitcfg.save({"offset": float(t0)}, os.path.splitext(a.out)[0] + ".json")
+    if a.plain:
+        # --clean: one static plate over the raw frame (a fitted, feathered wall fill for each box).
+        inputs, graph, cur = ["-i", a.raw], [], "0:v"
+        if a.clean:
+            plate = os.path.splitext(a.out)[0] + "_clean.png"
+            wall_plate(a.raw, [tuple(int(v) for v in c.split(",")) for c in a.clean], plate)
+            inputs += ["-loop", "1", "-i", plate]
+            graph.append("[0:v][1:v]overlay=0:0:shortest=1[c]")
+            cur = "c"
+        graph.append(f"[{cur}]scale=1080:1920:flags=lanczos,format=yuv420p" + (f",{grade}" if grade else "") + "[v]")
+        start = time.time()
+        subprocess.run([FF, "-hide_banner", "-loglevel", "error", "-y", *trim, *inputs, "-filter_complex", ";".join(graph), "-map", "[v]", "-an", "-c:v", "libx264",
+                        "-crf", "18", "-preset", "medium", "-pix_fmt", "yuv420p", "-movflags", "+faststart", a.out], check=True)
+        print(f"{a.out}: {os.path.getsize(a.out) / 1e6:.0f} MB, plain (no key) in {time.time() - start:.0f}s, grade {'off' if not grade else 'brand'}")
+        return
     post = "split[k][a];[a]alphaextract[al];[k]format=yuv420p" + (f",{grade}" if grade else "") + "[g];[g][al]alphamerge,format=yuva420p[v]"
     enc = ["-map", "[v]", "-an", "-c:v", "libvpx-vp9", "-pix_fmt", "yuva420p", "-crf", "30", "-b:v", "0", "-row-mt", "1",
            "-deadline", "good", "-cpu-used", "4", "-auto-alt-ref", "0", a.out]

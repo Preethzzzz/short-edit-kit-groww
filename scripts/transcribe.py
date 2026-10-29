@@ -7,6 +7,8 @@ Usage:
 Hindi-heavy audio: keep --lang hi and pass NO English --prompt (Whisper otherwise translates).
 Full-clip runs merge repeated takes; re-check suspicious stretches with --pieces.
 Writes OUT_words.json (+ OUT_words.txt with segment lines). Prints a one-line summary only.
+Whisper sometimes emits one fake "word" spanning many seconds and drops the speech under it: any word
+longer than LONG_WORD s is re-transcribed on its own stretch and spliced in (reported in the summary).
 """
 import argparse
 import os
@@ -16,6 +18,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import kitcfg  # noqa: E402
 
 SR = 16000
+LONG_WORD = 2.0
 
 
 def span(s):
@@ -66,12 +69,29 @@ def main():
         off = a.clip[0]
         audio = audio[int(a.clip[0] * SR) : int(a.clip[1] * SR)]
     words, lines = run(model, audio, a.lang, a.prompt, off)
+    fixed = []
+    for _ in range(2):  # repair fake long words; a second pass catches any the first repair produced
+        bad = [w for w in words if w["end"] - w["start"] > LONG_WORD]
+        if not bad:
+            break
+        for w in bad:
+            s0, s1 = max(off, w["start"] - 0.3), min(off + len(audio) / SR, w["end"] + 0.3)
+            new, nl = run(model, audio[int((s0 - off) * SR) : int((s1 - off) * SR)], a.lang, a.prompt, s0)
+            new = [x for x in new if w["start"] - 0.3 <= x["start"] < w["end"]]
+            i = words.index(w)
+            words[i : i + 1] = new
+            fixed.append(f"{w['start']:.1f}-{w['end']:.1f}")
+            lines += [l + "  (repaired)" for l in nl]
+    left = [w for w in words if w["end"] - w["start"] > LONG_WORD]
     kitcfg.save(words, a.out, indent=0)
     txt = os.path.splitext(a.out)[0] + ".txt"
     open(txt, "w", encoding="utf-8").write("\n".join(lines) + "\n")
     low = sum(w["p"] < 0.5 for w in words)
     dur = len(audio) / SR
-    print(f"{a.out}: {len(words)} words, {len(lines)} segments, {dur:.1f}s audio, {low} low-confidence words; text in {txt}")
+    rep = f"; repaired fake long words at {', '.join(fixed)}" if fixed else ""
+    still = ", ".join(f"{w['start']:.1f}" for w in left)
+    rep += f"; STILL LONG (check with --pieces): {still}" if left else ""
+    print(f"{a.out}: {len(words)} words, {len(lines)} segments, {dur:.1f}s audio, {low} low-confidence words{rep}; text in {txt}")
 
 
 if __name__ == "__main__":

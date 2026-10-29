@@ -131,6 +131,7 @@ Exact red and yellow hexes follow the working defaults in section 4 until confir
 - The Groww logo sits **top-right on every video**, for the whole video. This is a deliberate user choice and overrides the video guide's "no persistent watermark" line for the logo.
 - Files (extracted from the corporate PDF, transparent PNG, 1395x380): `logo/groww_logo_dark_text.png` (light backgrounds), `logo/groww_logo_white_text.png` (dark backgrounds / over footage), `logo/groww_icon.png` (icon only). Never redraw or retype the logo; never recolour the icon.
 - Placement on 1080x1920: about 230 px wide, right edge 50 px from the frame edge, top about 80 px, on the same line as any top-left topic tag. Pick the dark-text or white-text file per shot so it always reads.
+- Logo clear zone (user rule, 29 Oct 2026): nothing may sit around the Groww logo, not even something in the footage (wall stickers, switches, frames, text in the background). Keep the logo's whole area plus about 60 px around it (canvas x 740-1080, y 0-360) empty: paint marks out of the footage (`key.py --plain --clean X,Y,W,H`), reframe, or ask the user.
 - Layout consequence: the top band (y 0-220) is reserved for the header row (tag left, logo right). Cards, end card and full-screen titles start below y 220 so nothing collides with the logo.
 
 ## 3. Corporate brand sheet (Groww Brand Guidelines PDF)

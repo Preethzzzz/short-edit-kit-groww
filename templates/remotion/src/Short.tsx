@@ -144,7 +144,9 @@ const Captions: React.FC<{p: EditProps; topCues: Cue[]}> = ({p, topCues}) => {
 	const L = p.brand.layout;
 	const s = p.brand.captions;
 	const k = eo(frame, f(c.from), f(c.from) + f(0.15));
-	const top = interpolate(g, [0, 1], [L.captionTop, L.captionTopWithCard]);
+	// A bottom end card takes the caption slot: captions sit at the with-card height while it shows.
+	const endBottom = p.endCard?.position === 'bottom' ? eo(frame, f(p.endCard.from), f(p.endCard.from) + f(0.4)) : 0;
+	const top = interpolate(Math.max(g, endBottom), [0, 1], [L.captionTop, L.captionTopWithCard]);
 	// Word-by-word highlight: the spoken word's slot (starts[] from build_plan) is shown in the accent colour.
 	const words = c.text.split(' ');
 	let active = -1;
@@ -207,8 +209,19 @@ const EndCard: React.FC<{p: EditProps}> = ({p}) => {
 	const k = eo(frame, f(p.endCard.from), f(p.endCard.from) + f(0.4));
 	if (k <= 0) return null;
 	const L = p.brand.layout;
+	const place = p.endCard.position === 'bottom' ? {bottom: 1920 - L.safe.bottom} : {top: L.cardTop};
+	if (p.endCard.raBox) {
+		// Brand RA box: centred white lines on the neutral blue.
+		return (
+			<div style={{position: 'absolute', ...place, left: L.safe.left, right: 1080 - L.safe.right, opacity: k, transform: `translateY(${(1 - k) * 12}px)`, fontFamily: p.brand.fonts.sans, color: p.brand.palette.white, background: p.brand.tones.neutral.main, borderRadius: 22, padding: '22px 26px', fontSize: 33, fontWeight: 600, lineHeight: 1.38, textAlign: 'center', boxShadow: '0 16px 36px rgba(15,15,15,0.18)'}}>
+				{p.endCard.raBox.map((l) => (
+					<div key={l}>{l}</div>
+				))}
+			</div>
+		);
+	}
 	return (
-		<div style={{position: 'absolute', top: L.cardTop, left: L.safe.left, right: 1080 - L.safe.right - 60, opacity: k, transform: `translateY(${(1 - k) * 12}px)`, fontFamily: p.brand.fonts.sans, color: p.brand.palette.ink, background: p.brand.palette.white, borderLeft: `10px solid ${p.brand.tones.note.main}`, borderRadius: 22, padding: '24px 30px', fontSize: 25, lineHeight: 1.4, boxShadow: '0 16px 36px rgba(15,15,15,0.10)'}}>
+		<div style={{position: 'absolute', ...(p.endCard.position === 'bottom' ? {bottom: 1920 - L.safe.bottom} : {top: L.cardTop}), left: L.safe.left, right: 1080 - L.safe.right - 60, opacity: k, transform: `translateY(${(1 - k) * 12}px)`, fontFamily: p.brand.fonts.sans, color: p.brand.palette.ink, background: p.brand.palette.white, borderLeft: `10px solid ${p.brand.tones.note.main}`, borderRadius: 22, padding: '24px 30px', fontSize: 25, lineHeight: 1.4, boxShadow: '0 16px 36px rgba(15,15,15,0.10)'}}>
 			{p.endCard.text}
 			<div style={{marginTop: 10, fontWeight: 700}}>{p.endCard.ra}</div>
 		</div>

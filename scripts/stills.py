@@ -1,7 +1,8 @@
 """Contact sheet of stills from a render, for review without watching the video.
 
 Usage: stills.py VIDEO OUT.png [--edit edit.json] [--times 1.2,5,9.8] [--cols 5]
-Default times: the middle of every cue in edit.json (or every 4 s). One PNG, each still labelled with its time.
+Default times: the middle of every cue in edit.json, plus the middle of every gap over 1.5 s between cues
+(talk stretches, where only the presenter is on screen), or every 4 s. One PNG, each still labelled with its time.
 """
 import argparse
 import os
@@ -26,7 +27,15 @@ if a.times:
     times = [float(x) for x in a.times.split(",")]
 elif a.edit:
     e = kitcfg.load(a.edit)
-    times = [round((c["from"] + c["to"]) / 2, 2) for c in e["cues"]] or [i * 4.0 for i in range(int(e["duration"] // 4))]
+    cues = sorted(e["cues"], key=lambda c: c["from"])
+    times = [round((c["from"] + c["to"]) / 2, 2) for c in cues] or [i * 4.0 for i in range(int(e["duration"] // 4))]
+    end = e["endCard"]["from"] if e.get("endCard") else e["duration"]
+    last = 0.0
+    for c in cues + [{"from": end, "to": end}]:  # talk stretches between cues
+        if c["from"] - last > 1.5:
+            times.append(round((last + c["from"]) / 2, 2))
+        last = max(last, c["to"])
+    times.sort()
     if e.get("endCard"):
         times.append(round(e["endCard"]["from"] + 1.0, 2))
 else:

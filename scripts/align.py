@@ -68,5 +68,5 @@ if cur:
     runs.append(cur)
 n, m = len(script_words), sum(o["matched"] for o in out)
 print(f"script words {n}, transcript words kept {len(kept)}, matched {m} ({m / max(1, n):.0%}), edit length {out_t:.2f}s")
-for r in [r for r in runs if len(r) >= 3]:
+for r in runs:  # every run: 1-2 word misses are often substitutions that flip meaning ("nahi" heard as "rahi")
     print(f"  unmatched {out[r[0]]['t0']:6.2f}s: {' '.join(script_words[i] for i in r)}")

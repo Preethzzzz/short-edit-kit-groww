@@ -7,7 +7,9 @@ Anchors (beat `at` / `until`, section `at`, any prop key `at` or ending in `At`,
   {"phrase": "poora OFS", "after": "issue size ₹852.18", "edge": "end", "offset": 0.2}
   "start" | "end" | 12.5 (seconds)
 Brand values (palette, logo, layout, captions, compliance text) are copied from the brand pack, never from the plan.
-Plan switches: "sound": false (no bed/effects, plain voice), "autoPunch": false (no automatic punch-ins).
+Plan switches: "sound": false (no bed/effects, plain voice), "autoPunch": false (no automatic punch-ins),
+"header": false (no tag/topic row; the logo stays), "endCard": {"at": ..., "position": "bottom"} (disclaimer card
+sits above the bottom safe line, captions move up while it shows; default "top").
 Prints one line per cue plus warnings; exits 1 if any anchor or component is invalid.
 """
 import argparse
@@ -194,12 +196,30 @@ def main():
     ch = b["channels"].get(channel, {})
     ra = plan.get("ra", {})
     ra_name, ra_date = ra.get("name") or job.get("raName", ""), ra.get("date") or job.get("raDate", "")
+    narrator = ra.get("narrator") or job.get("narrator", "")
     end_card = None
     if plan.get("endCard"):
         if not ra_name or not ra_date:
-            errors.append("endCard: RA name and RA date are required (plan.ra or job.json)")
+            errors.append("endCard: RA name and RA date are required (plan.ra or job.json; the brand RA box also needs narrator)")
         end_card = {"from": round(W.at(plan["endCard"]["at"], "endCard"), 3), "text": ch.get("disclaimer", ""),
-                    "ra": b["compliance"]["raLine"].format(raName=ra_name, raDate=ra_date)}
+                    "ra": b["compliance"]["raLine"].format(raName=ra_name, raDate=ra_date),
+                    "position": plan["endCard"].get("position", "top")}
+        if b["compliance"].get("raBox"):
+            # RA box (brand): replaces the disclaimer text + RA line on the end card.
+            if not narrator:
+                errors.append("endCard: narrator name is required for the brand RA box (plan.ra.narrator or job.json narrator)")
+            end_card["raBox"] = [l.format(raName=ra_name, raDate=ra_date, narrator=narrator) for l in b["compliance"]["raBox"]]
+
+    if layout == "full" and plan.get("presenter") and duration > 0:
+        # Full layout: cards hide the presenter. A talking-head Short that is mostly cards reads as a slideshow.
+        covered, last = 0.0, 0.0
+        for c in sorted(cues, key=lambda c: c["from"]):
+            c0, c1 = max(c["from"], last), min(c["to"], end_card["from"] if end_card else duration)
+            covered += max(0.0, c1 - c0)
+            last = max(last, c1)
+        shown = 1 - covered / duration
+        if shown < 0.30:
+            warns.append(f"presenter on screen {shown:.0%} of the video (full layout); turn some card lines into talk stretches (aim 35%+)")
 
     logo = dict(b["logo"])
     for k in ("onLight", "onDark", "icon"):
@@ -210,7 +230,8 @@ def main():
     edit = {
         "fps": fps, "width": b["canvas"]["width"], "height": b["canvas"]["height"], "duration": duration, "layout": layout,
         "brand": brand_props, "theme": b["themes"][plan.get("theme") or b["defaultTheme"]],
-        "header": {"tag": ch.get("tag") if b.get("header", {}).get("show", True) else None, "topic": plan.get("header", {}).get("topic")},
+        "header": {"tag": None, "topic": None} if plan.get("header") is False else
+                  {"tag": ch.get("tag") if b.get("header", {}).get("show", True) else None, "topic": (plan.get("header") or {}).get("topic")},
         "presenter": {"src": pres["src"], "offset": pres.get("offset", 0)} if pres else None,
         "voice": plan.get("voice"), "mix": "mix.m4a" if plan.get("sound", True) else None, "punches": punches, "segments": segs, "sections": sections, "talk": talk, "cues": cues,
         "captions": caps, "zooms": zooms, "endCard": end_card,

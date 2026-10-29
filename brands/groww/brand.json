@@ -139,10 +139,12 @@
   "compliance": {
     "openingLines": [
       "SEBI registered name: Groww Invest Tech Private Limited",
-      "SEBI Research Analyst registration number: INH200008662"
+      "SEBI Research Analyst registration Number: INH200008662",
+      "Weblink: https://bit.ly/4iBf3z8"
     ],
     "openingSeconds": 5,
-    "raLine": "Research Analyst: {raName} · RA Date: {raDate} · RA disclaimer link in channel 'About' section"
+    "raLine": "Research Analyst: {raName} · RA Date: {raDate} · RA disclaimer link in channel 'About' section",
+  "raBox": ["Name of RA: {raName}", "Name of narrator: {narrator}", "Report date: {raDate}", "RA disclaimer link in channel ‘About’ section"]
   },
   "motion": {
     "easing": "ease-out-cubic",

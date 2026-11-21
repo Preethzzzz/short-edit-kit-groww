@@ -73,6 +73,7 @@ It asks once for the format, channel, RA name and RA date, and header topic. The
 |---|---|
 | `ipo-day-roundup` | 2 to 5 IPOs opening on the same day: hook, concept explainer, one card per company |
 | `data-explainer` | One data finding from a report or study: talk lines plus full-screen data cards |
+| `explainer-story` | One "how did this happen" story: presenter on one photo background, quote cards above her, 2-3 Gemini AI clips |
 
 ## Update
 
@@ -85,6 +86,7 @@ The command line updates itself: `npx -y short-edit-kit-groww@latest` always fet
 | `edit-short` | Full flow: job setup, keying, transcribe, cuts synced to the script, English captions, visual plan, render, QA |
 | `format-ipo-day-roundup` | Rules for the IPO roundup format |
 | `format-data-explainer` | Rules for the data explainer format |
+| `format-explainer-story` | Rules for the explainer story format (photo background, Gemini clip prompts) |
 | `setup` | Install or verify the tools and run the test render |
 
 | Agent | Job |

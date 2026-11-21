@@ -12,6 +12,8 @@ import {SourceTag} from './ui';
 // layout "full": cards replace the A-roll full-screen; talk stretches switch WIDE / MCU framing.
 
 const CENTERED = new Set(['KineticLine']);
+// Full-bleed beats cover the whole frame (presenter hidden) in either layout.
+const FULLBLEED = new Set(['Clip']);
 const ALL: Record<string, React.FC<any>> = {...COMPONENTS, ...CUSTOM};
 const ALL_SCENES: Record<string, React.FC> = {...SCENES, ...CUSTOM_SCENES};
 
@@ -52,11 +54,25 @@ const Background: React.FC<{p: EditProps}> = ({p}) => {
 				return (
 					<AbsoluteFill key={i} style={{opacity: o}}>
 						<Sequence from={a - x} layout="none">
-							<Scene />
+							{s.scene === 'photo' && p.background ? <PhotoScene bg={p.background} /> : <Scene />}
 						</Sequence>
 					</AbsoluteFill>
 				);
 			})}
+		</AbsoluteFill>
+	);
+};
+
+// Scene "photo": one still behind the presenter for the whole video. Slight blur = depth of field (she is
+// sharp, the room is not), a little dim so she separates, and a very slow drift so the frame is never frozen.
+const PhotoScene: React.FC<{bg: NonNullable<EditProps['background']>}> = ({bg}) => {
+	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
+	const drift = 1.02 + (bg.drift ?? 0.03) * interpolate(frame, [0, durationInFrames], [0, 1], {extrapolateRight: 'clamp'});
+	return (
+		<AbsoluteFill style={{overflow: 'hidden'}}>
+			<Img src={staticFile(bg.src)} style={{width: '100%', height: '100%', objectFit: 'cover', filter: `blur(${bg.blur ?? 4}px)`, transform: `scale(${drift})`}} />
+			<AbsoluteFill style={{background: `rgba(0,0,0,${bg.dim ?? 0.08})`}} />
 		</AbsoluteFill>
 	);
 };
@@ -82,8 +98,13 @@ const Presenter: React.FC<{p: EditProps; topCues: Cue[]}> = ({p, topCues}) => {
 	const punch = [...p.punches].reverse().find((x) => t >= x.from)?.scale ?? 1;
 	const scale = z * (1 - 0.06 * g) * punch;
 	const {presenter} = p;
+	const lk = presenter.look;
+	// Colour match to the background + a soft rim of the room's light on her edges (reads as light wrap).
+	const look = lk
+		? `brightness(${lk.brightness ?? 1}) contrast(${lk.contrast ?? 1}) saturate(${lk.saturate ?? 1}) hue-rotate(${lk.hue ?? 0}deg)${lk.rim ? ` drop-shadow(0 0 ${lk.rimPx ?? 14}px ${lk.rim})` : ''}`
+		: undefined;
 	return (
-		<AbsoluteFill style={{transform: `translateY(${g * p.brand.layout.presenterDrop}px) scale(${scale * framing})`, transformOrigin: p.layout === 'full' ? '50% 30%' : '50% 45%'}}>
+		<AbsoluteFill style={{transform: `translateY(${g * p.brand.layout.presenterDrop}px) scale(${scale * framing})`, transformOrigin: p.layout === 'full' ? '50% 30%' : '50% 45%', filter: look}}>
 			{p.segments.map((s) => (
 				<Sequence key={s.out} from={f(s.out)} durationInFrames={Math.max(1, f(s.out + s.src1 - s.src0) - f(s.out))} layout="none">
 					<AbsoluteFill style={{transform: `scale(${s.punch ?? 1})`, transformOrigin: '50% 40%'}}>
@@ -113,6 +134,14 @@ const Shell: React.FC<{cue: Cue; layout: 'card-top' | 'full'}> = ({cue, layout})
 			<C {...cue.props} />
 		</CueCtx.Provider>
 	);
+	if (FULLBLEED.has(cue.component)) {
+		return (
+			<AbsoluteFill style={{opacity: Math.min(eo(frame, 0, f(0.25)), outK)}}>
+				{body}
+				{cue.source ? <SourceTag text={cue.source} dark /> : null}
+			</AbsoluteFill>
+		);
+	}
 	if (layout === 'full') {
 		return (
 			<AbsoluteFill style={{fontFamily: ink.sans, color: ink.text}}>
@@ -184,16 +213,39 @@ const Header: React.FC<{p: EditProps; dark: boolean}> = ({p, dark}) => {
 	);
 };
 
-const OpeningLines: React.FC<{p: EditProps}> = ({p}) => {
+// SEBI lines. Default: top-right under the logo for the brand's openingSeconds. A plan can move them
+// (`sebi.position: "bottom"` = bottom centre, just above the Shorts UI) and repeat them for the last closingSeconds.
+const OpeningLines: React.FC<{p: EditProps; dark: boolean}> = ({p, dark}) => {
 	const frame = useCurrentFrame();
 	const f = useF();
+	const {durationInFrames} = useVideoConfig();
 	const c = p.brand.compliance;
 	if (!c.openingLines.length) return null;
-	const end = f(c.openingSeconds);
-	const o = interpolate(frame, [0, 5, end - 6, end], [0, 1, 1, 0], {extrapolateRight: 'clamp'});
+	const sebi = p.sebi ?? {};
+	const end = f(sebi.openingSeconds ?? c.openingSeconds);
+	const closeF = sebi.closingSeconds ? f(sebi.closingSeconds) : 0;
+	const win = (a: number, b: number) => interpolate(frame, [a, a + 5, b - 6, b], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+	const o = Math.max(win(0, end), closeF ? win(durationInFrames - closeF, durationInFrames + 6) : 0);
 	if (o <= 0) return null;
+	const L = p.brand.layout;
+	const bottom = sebi.position === 'bottom';
+	const place: React.CSSProperties = bottom
+		? {top: L.safe.bottom + 10, left: L.safe.left, right: 1080 - L.safe.right, textAlign: 'center'}
+		: {top: L.headerBandBottom - 10, left: L.safe.left, right: p.brand.logo.right, textAlign: 'right'};
+	if (bottom) {
+		// Over her body and hands nothing stays readable without a backing: small dark pill, white text.
+		return (
+			<div style={{position: 'absolute', ...place, display: 'flex', justifyContent: 'center', opacity: o}}>
+				<div style={{fontFamily: p.brand.fonts.sans, fontSize: 21, lineHeight: 1.4, color: 'rgba(255,255,255,0.92)', background: 'rgba(20,20,20,0.55)', borderRadius: 12, padding: '8px 16px'}}>
+					{c.openingLines.map((l) => (
+						<div key={l}>{l}</div>
+					))}
+				</div>
+			</div>
+		);
+	}
 	return (
-		<div style={{position: 'absolute', top: p.brand.layout.headerBandBottom - 10, left: p.brand.layout.safe.left, right: p.brand.logo.right, textAlign: 'right', fontFamily: p.brand.fonts.sans, fontSize: 21, lineHeight: 1.35, color: p.theme.dark ? 'rgba(255,255,255,0.75)' : p.brand.palette.sub, opacity: o}}>
+		<div style={{position: 'absolute', ...place, fontFamily: p.brand.fonts.sans, fontSize: 21, lineHeight: 1.35, color: dark ? 'rgba(255,255,255,0.85)' : p.brand.palette.sub, textShadow: p.background && dark ? '0 1px 6px rgba(0,0,0,0.45)' : undefined, opacity: o}}>
 			{c.openingLines.map((l) => (
 				<div key={l}>{l}</div>
 			))}
@@ -233,9 +285,10 @@ export const Short: React.FC<EditProps> = (p) => {
 	const {fps} = useVideoConfig();
 	const t = frame / fps;
 	const f = (s: number) => Math.round(s * fps);
-	const topCues = p.layout === 'card-top' ? p.cues : [];
-	const fullCue = p.layout === 'full' ? p.cues.find((c) => t >= c.from && t < c.to) : undefined;
-	const dark = p.theme.dark;
+	const topCues = p.layout === 'card-top' ? p.cues.filter((c) => !FULLBLEED.has(c.component)) : [];
+	const fullCue = p.cues.find((c) => t >= c.from && t < c.to && (p.layout === 'full' || FULLBLEED.has(c.component)));
+	// A dark photo background takes the white-text logo and light header text.
+	const dark = p.theme.dark || (!!p.background?.dark && p.sections.some((s) => s.scene === 'photo'));
 	return (
 		<BrandCtx.Provider value={{brand: p.brand, theme: p.theme}}>
 			<AbsoluteFill style={{background: p.theme.ground}}>
@@ -248,7 +301,7 @@ export const Short: React.FC<EditProps> = (p) => {
 				))}
 				<Captions p={p} topCues={topCues} />
 				<Header p={p} dark={dark} />
-				<OpeningLines p={p} />
+				<OpeningLines p={p} dark={dark} />
 				<EndCard p={p} />
 				{p.mix || p.voice ? <Audio src={staticFile((p.mix ?? p.voice) as string)} /> : null}
 			</AbsoluteFill>

@@ -134,6 +134,8 @@ def main():
         talk.append({"from": round(max(0.0, W.at(x["at"], "talk") - mo["cueLeadSec"]), 3), "framing": x.get("framing", "WIDE")})
     talk.sort(key=lambda x: x["from"])
 
+    if any(x.get("scene") == "photo" for x in plan.get("sections", [])) and not (plan.get("background") or {}).get("src"):
+        errors.append("scene 'photo' needs plan.background.src (an image in public/)")
     sections = [{"scene": s["scene"], "from": round(max(0.0, W.at(s["at"], "section") - mo["cueLeadSec"]), 3)} for s in plan.get("sections", [])]
     zooms = [{"from": round(W.at(z["at"], "zoom") - 0.1, 3), "to": round(W.at(z.get("until", "end"), "zoom"), 3), "scale": z.get("scale", b["framing"]["endZoom"])} for z in plan.get("zooms", [])]
 
@@ -232,7 +234,9 @@ def main():
         "brand": brand_props, "theme": b["themes"][plan.get("theme") or b["defaultTheme"]],
         "header": {"tag": None, "topic": None} if plan.get("header") is False else
                   {"tag": ch.get("tag") if b.get("header", {}).get("show", True) else None, "topic": (plan.get("header") or {}).get("topic")},
-        "presenter": {"src": pres["src"], "offset": pres.get("offset", 0)} if pres else None,
+        "presenter": {"src": pres["src"], "offset": pres.get("offset", 0), "look": pres.get("look")} if pres else None,
+        "background": plan.get("background"),
+        "sebi": plan.get("sebi"),
         "voice": plan.get("voice"), "mix": "mix.m4a" if plan.get("sound", True) else None, "punches": punches, "segments": segs, "sections": sections, "talk": talk, "cues": cues,
         "captions": caps, "zooms": zooms, "endCard": end_card,
     }

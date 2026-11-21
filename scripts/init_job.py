@@ -1,6 +1,6 @@
 """Create a job folder from raw footage + a finished script (DOCX, PDF or text).
 
-Usage: init_job.py FOOTAGE SCRIPT --name SLUG --format ipo-day-roundup|data-explainer [--channel ipo-review] [--root jobs]
+Usage: init_job.py FOOTAGE SCRIPT --name SLUG --format ipo-day-roundup|data-explainer|explainer-story [--channel ipo-review] [--root jobs]
 
 Makes ROOT/SLUG/{inputs,work,work/images,public,out}, links the footage, extracts the script to
 work/script_raw.txt (paragraphs in order, [IMAGE img_NN.ext] markers, tables as "a | b") and every

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Img, interpolate, staticFile, Easing} from 'remotion';
+import {Img, interpolate, OffthreadVideo, staticFile, Easing} from 'remotion';
 import {eio, eo, useBrand, useInk, useT, useTone} from './brand';
 import {CountUp, fmt, Kicker, parseRich, Part, Pill, Rich, Stat} from './ui';
 
@@ -447,6 +447,35 @@ export const Checklist: React.FC<{title?: string | Part[]; items: {text: string;
 	);
 };
 
+// "No price band, no lot size, no allotment": pills arrive, then a red cross strikes each one as it is ruled out
+// (loss red = 'not here'). `crossAt` per item; without it the cross follows the pill.
+export const CrossList: React.FC<{title?: string | Part[]; items: {text: string; at?: At; crossAt?: At}[]}> = ({title, items}) => {
+	const {enter, ms} = useT();
+	const ink = useInk();
+	const tone = useTone();
+	const red = tone('loss');
+	return (
+		<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 44}}>
+			{title ? <Rich text={title} size={60} style={{textAlign: 'center'}} /> : null}
+			<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22}}>
+				{items.map((it, i) => {
+					const k = enter(it.at, ms(200) + i * ms(500), 300);
+					const x = enter(it.crossAt ?? it.at, ms(500) + i * ms(500), 280);
+					return (
+						<div key={i} style={{display: 'flex', alignItems: 'center', gap: 22, background: tone('neutral').main, color: ink.white, borderRadius: 18, padding: '16px 26px 16px 34px', opacity: k, transform: `translateY(${(1 - k) * 14}px)`}}>
+							<span style={{position: 'relative', fontSize: 46, fontWeight: 700}}>
+								{it.text}
+								<span style={{position: 'absolute', left: -4, right: -4, top: '54%', height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.85)', transform: `scaleX(${x})`, transformOrigin: 'left center'}} />
+							</span>
+							<span style={{width: 48, height: 48, borderRadius: 24, background: red.main, color: ink.white, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, fontWeight: 800, opacity: x, transform: `scale(${0.6 + 0.4 * x})`}}>✕</span>
+						</div>
+					);
+				})}
+			</div>
+		</div>
+	);
+};
+
 // Rows that slide in one by one: "2023 | Small cap ahead | of large cap".
 export const RowsReveal: React.FC<{title?: string | Part[]; rows: {lead: string; pill: string; note?: string; tone?: string; at?: At}[]}> = ({title, rows}) => {
 	const {enter, ms} = useT();
@@ -673,7 +702,24 @@ export const ImageCard: React.FC<{src: string; width: number; height: number; ca
 	);
 };
 
+// ---------- inserts ----------
+
+// Full-bleed video insert (AI-generated b-roll from the Gemini prompts, or licensed footage). Muted, slow push-in,
+// small corner label (default "AI-generated visual") so viewers are never misled about what is real.
+export const Clip: React.FC<{src: string; startFrom?: number; label?: string | null; push?: number; focus?: string}> = ({src, startFrom = 0, label = 'AI-generated visual', push = 0.05, focus = '50% 50%'}) => {
+	const {frame, ms, fps} = useT();
+	const ink = useInk();
+	const z = 1 + push * Math.min(1, frame / Math.max(1, ms(6000)));
+	return (
+		<div style={{position: 'absolute', inset: 0, overflow: 'hidden', background: '#000'}}>
+			<OffthreadVideo src={staticFile(src)} startFrom={Math.round(startFrom * fps)} muted style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: focus, transform: `scale(${z})`}} />
+			{label ? <div style={{position: 'absolute', left: 60, top: 240, fontFamily: ink.sans, fontSize: 22, fontWeight: 600, color: 'rgba(255,255,255,0.85)', background: 'rgba(0,0,0,0.35)', padding: '6px 14px', borderRadius: 8}}>{label}</div> : null}
+		</div>
+	);
+};
+
 export const COMPONENTS: Record<string, React.FC<any>> = {
+	Clip,
 	KineticLine, NoteCard, BigNumber, StackedTotal, SplitBar, AmountRows, Bars, Calculation, EntityCard, FlowExplainer,
-	Checklist, RowsReveal, Timeline, DocCard, TileDrop, DotGrid, Ranking, ImageCallout, ImageCard,
+	Checklist, CrossList, RowsReveal, Timeline, DocCard, TileDrop, DotGrid, Ranking, ImageCallout, ImageCard,
 };

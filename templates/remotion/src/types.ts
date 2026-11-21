@@ -26,6 +26,9 @@ export type Brand = {
 	compliance: {openingLines: string[]; openingSeconds: number};
 };
 
+// Matches the keyed presenter to a photo background: CSS filter values + a soft rim of the background's light.
+export type PresenterLook = {brightness?: number; contrast?: number; saturate?: number; hue?: number; rim?: string | null; rimPx?: number};
+
 export type Segment = {src0: number; src1: number; out: number; punch?: number};
 export type Cue = {id: string; component: string; from: number; to: number; source?: string | null; props: Record<string, any>};
 export type Caption = {from: number; to: number; text: string; starts?: number[]};
@@ -39,7 +42,11 @@ export type EditProps = {
 	brand: Brand;
 	theme: Theme;
 	header: {tag?: string | null; topic?: string | null};
-	presenter: {src: string; offset: number} | null;
+	presenter: {src: string; offset: number; look?: PresenterLook} | null;
+	// scene "photo": one still behind the keyed presenter for the whole video (format explainer-story)
+	// where/when the SEBI lines show (text always comes from the brand pack)
+	sebi?: {position?: 'top' | 'bottom'; openingSeconds?: number; closingSeconds?: number} | null;
+	background?: {src: string; blur?: number; dim?: number; drift?: number; dark?: boolean} | null;
 	voice: string | null;
 	mix: string | null; // voice + bed + effects (scripts/build_mix.py); played instead of voice when set
 	punches: {from: number; scale: number}[]; // cut-style framing changes on the presenter

@@ -28,4 +28,10 @@ Rules:
 - Only numbers that appear in script.txt or facts.txt. No GMP, no buy/sell/apply advice, no superlatives beyond the script, no third-party brand logos or photos.
 - Every borrowed number gets a Source.
 
-End the file with: chosen scene per section, list of NEW designs (if any), and open questions (if any). Reply in chat with only: the file path, number of rows, NEW count, open questions.
+AI visuals (Gemini prompts), every format:
+- Decide where a real-world picture explains a line better than any graphic, and plan a `Clip` beat there. At most 3 in a Short (normally 2), 2-4 s each, never two in a row, never for numbers, rules or documents. If no line needs one, plan none and say so.
+- For each, write a ready-to-paste Gemini video prompt following `$K/formats/explainer-story/PROMPTS.md` (template + rules: 9:16, about 8 s, one slow camera move, Indian setting, subject in the centre third, no text/numbers/logos/brands/real people). The prompt describes what the line means, not generic "office" footage.
+- If the format uses the `photo` scene and `JOB/public/bg.jpg` (or the brand's `backgrounds/`) does not exist, also write the background photo prompt from PROMPTS.md, with the light side filled in from the footage if you can tell, otherwise ask.
+- Put them in a section `## Gemini prompts` at the end of visual_plan.md: for each, the row number, the anchor phrase, the target file name (`public/clips/ai_1.mp4` ...) and the prompt in a code block.
+
+End the file with: chosen scene per section, list of NEW designs (if any), and open questions (if any). Reply in chat with only: the file path, number of rows, NEW count, the number of Gemini prompts (and whether a background prompt is included), open questions.
